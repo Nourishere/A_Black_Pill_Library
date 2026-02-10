@@ -1,0 +1,11 @@
+Debug/
+Release/
+build/
+*.o
+*.d
+*.a
+*.su
+.cproject
+.settings/
+.project
+
