@@ -29,7 +29,7 @@
 * Use `make TOOL_DIR=/path/to/toolchain/bin` to specify the toolchain directory. 
 
 ## Integration
-* You can ues the library by linking it with any other project you're working on.
+* You can use the library by linking it with any other project you're working on.
 
 ## Contribution
 * Pull requests are welcome.
