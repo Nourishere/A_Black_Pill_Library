@@ -1,5 +1,5 @@
 # A Baremetal Library for the Black Pill
-* This repository is intended to offer a stable baremetal static library for the STM32F411CEU6 MCU (AKA the Black Pill.)
+* This repository is intended to offer a stable baremetal static library for the STM32F411CEU6 MCU (AKA the Black Pill) with future plans to port it to other M4/M3 boards.
 
 ## Repository Structure
 
@@ -7,19 +7,18 @@
 .
 ├── README.md
 ├── Makefile
-├── Inc
-│   ├── GPIO
-│   |    ├── GPIO.h
-|   |    └── ...
+├──	core/ (Cortex M specific)
+├── drivers/
+│   ├── gpio.c
 |   └── ...
 |
-└── Src
-    ├── GPIO
-    |    ├── GPIO.c
-    |    └── ...
-    └── ...
+└──	Inc/
+    ├── core/
+    └── drivers/
+		 ├── gpio.h
+	     └── ...
 ```
-	
+
 ## Prerequisites 
 * You need to have `make` and the `arm-none-eabi` GCC toolchain or something similar installed, or use an IDE if you are into that kind of stuff!
  

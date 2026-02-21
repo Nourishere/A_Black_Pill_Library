@@ -5,7 +5,7 @@
  *      Author: nour
  *  Brief: Low Level GPIO driver.
  */
-#include <GPIO.H>
+#include <drivers/gpio.h>
 
 /* Check invalid port-pin arguments */
 static uint32_t GPIO_chk_inv(GPIO_t* gpio);
