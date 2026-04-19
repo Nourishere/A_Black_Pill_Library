@@ -1,5 +1,5 @@
 # A Baremetal Library for the Black Pill
-* This repository is intended to offer a stable baremetal static library for the STM32F411CEU6 MCU (AKA the Black Pill) with future plans to port it to other M4/M3 boards.
+* This repository is intended to offer a stable baremetal static library for the STM32F401RCT6 MCU (AKA the Black Pill) with future plans to port it to other M4/M3 boards.
 
 ## Repository Structure
 
