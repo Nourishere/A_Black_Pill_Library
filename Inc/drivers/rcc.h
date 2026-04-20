@@ -53,4 +53,18 @@
 // Dedicated clocks configuration register 
 #define RCC_DCKCFGR		*((volatile uint32_t*)(RCC_BASE+0x8C))
 
+// Max/min output frequency (in MHz) of the following PLL divisors/multipliers
+#define MAX_M 2
+#define MIN_M 1
+#define MAX_N 432
+#define MIN_N 192
+#define MAX_P 84
+
+// HSI frequency (in MHz)
+#define HSI_FRQ 16
+
+typedef enum{
+	HSE,HSI,PLL
+}sysclk_src;
+
 #endif // RCC_H
