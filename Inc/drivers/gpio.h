@@ -10,7 +10,6 @@
 #define GPIO_H_
 
 #include <stdint.h>
-#include <return.h>
 /*
  * Each general-purpose I/O port has four 32-bit configuration registers (GPIOx_MODER,
  * GPIOx_OTYPER, GPIOx_OSPEEDR and GPIOx_PUPDR), two 32-bit data registers

@@ -16,7 +16,7 @@ GPIO_t GPIO_default (uint8_t pin, uint8_t port)
 	def.pin = pin;
 	def.port = port;
 	uint32_t ret = GPIO_chk_inv(&def);
-	if(ret != __ROK){
+	if(ret != 0){
 		GPIO_t neg;
 		return neg;
 	}
@@ -31,7 +31,7 @@ GPIO_t GPIO_default (uint8_t pin, uint8_t port)
 uint32_t GPIO_init (GPIO_t* gpio)		
 {
 	uint32_t ret = GPIO_chk_inv(gpio);
-	if(ret != __ROK)
+	if(ret != 0)
 		return ret;
 	switch(gpio->port){
 		case (PORTA):
@@ -53,18 +53,18 @@ uint32_t GPIO_init (GPIO_t* gpio)
 			GPIOC->OPUPDR|=(gpio->pp_res) << (gpio->pin << 1);
 			break;
 		default:
-			return __RNOK;
+			return 1;
 	}	
-	return __ROK;
+	return 0;
 }
 
 uint32_t GPIO_set (GPIO_t* gpio)
 {
 	uint32_t ret = GPIO_chk_inv(gpio);
-	if(ret != __ROK)
+	if(ret != 0)
 		return ret;
 	if(gpio->mode != OUT)
-		return __RNOK;
+		return 1;
 	switch(gpio->port){
 		case (PORTA):
 			GPIOA->ODR|=(1 << (gpio->pin));
@@ -76,18 +76,18 @@ uint32_t GPIO_set (GPIO_t* gpio)
 			GPIOC->ODR|=(1 << (gpio->pin));
 			break;
 		default:
-			return __RNOK;
+			return 1;
 	}
-	return __ROK;
+	return 0;
 }
 
 uint32_t GPIO_clear (GPIO_t* gpio)
 {
 	uint32_t ret = GPIO_chk_inv(gpio);
-	if(ret != __ROK)
+	if(ret != 0)
 		return ret;
 	if(gpio->mode != OUT)
-		return __RNOK;
+		return 1;
 	switch(gpio->port){
 		case (PORTA):
 			GPIOA->ODR&=~(1 << (gpio->pin));
@@ -99,18 +99,18 @@ uint32_t GPIO_clear (GPIO_t* gpio)
 			GPIOC->ODR&=~(1 << (gpio->pin));
 			break;
 		default:
-			return __RNOK;
+			return 1;
 	}
-	return __ROK;
+	return 0;
 }
 
 uint32_t GPIO_toggle (GPIO_t* gpio)
 {
 	uint32_t ret = GPIO_chk_inv(gpio);
-	if(ret != __ROK)
+	if(ret != 0)
 		return ret;
 	if(gpio->mode != OUT)
-		return __RNOK;
+		return 1;
 	switch(gpio->port){
 		case (PORTA):
 			GPIOA->ODR^=(1 << (gpio->pin));
@@ -122,18 +122,18 @@ uint32_t GPIO_toggle (GPIO_t* gpio)
 			GPIOC->ODR^=(1 << (gpio->pin));
 			break;
 		default:
-			return __RNOK;
+			return 1;
 	}
-	return __ROK;
+	return 0;
 }
 
 uint32_t GPIO_read (GPIO_t* gpio, uint32_t* saved)
 {
 	uint32_t ret = GPIO_chk_inv(gpio);
-	if(ret != __ROK)
+	if(ret != 0)
 		return ret;
 	if(gpio->mode != IN)
-		return __RNOK;
+		return 1;
 	switch(gpio->port){
 		case (PORTA):
 			*saved = (GPIOA->IDR >> gpio->pin) & 0x01;
@@ -145,18 +145,18 @@ uint32_t GPIO_read (GPIO_t* gpio, uint32_t* saved)
 			*saved = (GPIOC->IDR >> gpio->pin) & 0x01;
 			break;
 		default:
-			return __RNOK;
+			return 1;
 	}
-	return __ROK;
+	return 0;
 }
 
 
 static uint32_t GPIO_chk_inv(GPIO_t* gpio)
 {
 	if(gpio == 0)
-		return __RNULL;
+		return 1;
 	if(gpio->pin > PIN15 || gpio->pin < PIN0 || gpio->port < PORTA || gpio->port > PORTC ||
 	   (gpio-> port == PORTC && (gpio->pin > 15 || gpio->pin < 13)))
-		return __RINVAR;
-	return __ROK;
+		return 1;
+	return 0;
 }
