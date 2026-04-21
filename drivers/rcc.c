@@ -19,7 +19,7 @@ static void RCC_write_PLL_params(uint32_t M, uint32_t N, uint32_t P, uint32_t Q)
  *
  * Return 0 upon success and 1 otherwise.
  */
-uint8_t RCC_set_clksrc(uint32_t src){
+uint8_t RCC_set_clksrc(sysclk_src_t src){
 	switch(src){
 		case(HSE):
 			RCC_CR |= (1 << 16);
@@ -83,7 +83,7 @@ uint8_t RCC_set_clksrc(uint32_t src){
  *
  * Return 0 upon success 1 otherwise.
  */
-uint8_t RCC_set_PLL(uint32_t src, uint32_t M, uint32_t N, uint32_t P, uint32_t Q){
+uint8_t RCC_set_PLL(sysclk_src_t src, uint32_t M, uint32_t N, uint32_t P, uint32_t Q){
 	if(src != HSI || src != HSE)
 		return 1;
 	if(Q < 2 || Q > 15)

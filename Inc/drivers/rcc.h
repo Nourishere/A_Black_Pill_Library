@@ -63,10 +63,11 @@
 // HSI frequency (in MHz)
 #define HSI_FRQ 16
 
+// System clock options
 typedef enum{
 	HSE,HSI,PLL
-}sysclk_src;
+}sysclk_src_t;
 
-uint8_t RCC_set_clksrc(uint32_t src);
-uint8_t RCC_set_PLL(uint32_t src, uint32_t M, uint32_t N, uint32_t P, uint32_t Q);
+uint8_t RCC_set_clksrc(sysclk_src_t src);
+uint8_t RCC_set_PLL(sysclk_src_t src, uint32_t M, uint32_t N, uint32_t P, uint32_t Q);
 #endif // RCC_H
