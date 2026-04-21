@@ -150,6 +150,83 @@ uint8_t RCC_set_PLL(sysclk_src_t src, uint32_t M, uint32_t N, uint32_t P, uint32
 	return 0;
 }
 
+/*
+ * Set and activate an output clock on one of the MCO pins
+ * NOTE: Clock selection may generate glitches on MCOx.
+ * 		 It is highly recommended to call this function only after 
+ * 		 reset before enabling the external oscillators and the PLLs.
+ *
+ * clk: output clock on the MCOx pin
+ * mco: output pin (See `enum MCO_t`)
+ * prescaler: division factor
+ * 			  legal values: 1(pass),2,3,4,5
+ *
+ * return 0 upon success and 1 otherwise
+ */
+uint8_t RCC_clockout(clk_t clk, MCO_t mco, uint32_t prescaler){
+	if(prescaler < 1 || prescaler > 5)
+		return 1;	
+
+	if(mco == MCO1){
+		switch(clk){
+			case(clk_LSE):
+				RCC_CFGR &= ~(0x3 << 21);
+				RCC_CFGR |= (0x1 << 21);
+				break;
+			case(clk_HSI):
+				RCC_CFGR &= ~(0x3 << 21);
+				break;
+			case(clk_HSE):
+				RCC_CFGR &= ~(0x3 << 21);
+				RCC_CFGR |= (0x2 << 21);
+				break;
+			case(clk_PLL):
+				RCC_CFGR &= ~(0x3 << 21);
+				RCC_CFGR |= (0x3 << 21);
+				break;
+			default:
+				return 1;
+		}
+
+		// set the prescaler
+		prescaler = (prescaler==1)?0:(0x2+prescaler);
+		RCC_CFGR &= ~(0x7 << 24);
+		if(prescaler)
+			RCC_CFGR |= ((0x7 & prescaler) << 24);
+	}
+	else if(mco == MCO2){
+		switch(clk){
+			case(clk_HSE):
+				RCC_CFGR &= ~(0x3 << 30);
+				RCC_CFGR |= (0x2 << 30);
+				break;
+			case(clk_PLL):
+				RCC_CFGR &= ~(0x3 << 30);
+				RCC_CFGR |= (0x3 << 30);
+				break;
+			case(clk_PLLI2S):
+				RCC_CFGR &= ~(0x3 << 30);
+				RCC_CFGR |= (0x1 << 30);
+				break;
+			case(clk_SYSCLK):
+				RCC_CFGR &= ~(0x3 << 30);
+				break;
+			default:
+				return 1;
+		}
+
+		// set the prescaler
+		prescaler = (prescaler==1)?0:(0x2+prescaler);
+		RCC_CFGR &= ~(0x7 << 27);
+		if (prescaler)
+			RCC_CFGR |= ((0x7 & prescaler) << 27);
+	}
+	else
+		return 1;
+
+	return 0;
+}
+
 /* Helper
  * Set the multiplier/divisor values for the main PLL.
  * Does no checking and returns nothing.

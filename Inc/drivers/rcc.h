@@ -63,6 +63,11 @@
 // HSI frequency (in MHz)
 #define HSI_FRQ 16
 
+// MCO pin (for clock out functionality)
+typedef enum{
+	MCO1,MCO2
+}MCO_t;
+
 // All clocks
 typedef enum{
 	clk_LSI,clk_LSE,clk_HSI,clk_HSE
@@ -76,4 +81,5 @@ typedef enum{
 
 uint8_t RCC_set_clksrc(sysclk_src_t src);
 uint8_t RCC_set_PLL(sysclk_src_t src, uint32_t M, uint32_t N, uint32_t P, uint32_t Q);
+uint8_t RCC_clockout(clk_t clk, MCO_t mco, uint32_t prescaler);
 #endif // RCC_H
