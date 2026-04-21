@@ -63,6 +63,12 @@
 // HSI frequency (in MHz)
 #define HSI_FRQ 16
 
+// All clocks
+typedef enum{
+	clk_LSI,clk_LSE,clk_HSI,clk_HSE
+	,clk_PLL,clk_PLLI2S,clk_SYSCLK
+}clk_t;
+
 // System clock options
 typedef enum{
 	HSE,HSI,PLL
