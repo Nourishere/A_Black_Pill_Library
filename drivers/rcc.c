@@ -9,6 +9,7 @@
 #include <../Inc/drivers/rcc.h>
 
 static void RCC_write_PLL_params(uint32_t M, uint32_t N, uint32_t P, uint32_t Q);
+static uint8_t RCC_con_peripheral(peripheral_t peripheral, uint32_t state);
 
 /*
  * Set the clock source for the system clock (SYSCLOCK)
@@ -405,4 +406,121 @@ static void RCC_write_PLL_params(uint32_t M, uint32_t N, uint32_t P, uint32_t Q)
 	// Clear and then write M, N, P, Q respectively
 	RCC_PLLCFGR &= ~((0x3F << 0) | (0x1FF << 6) | (0x03 << 16) | (0x0F << 24));
 	RCC_PLLCFGR |= ((0x3F & M) | ((0x1FF & N) << 6) | ((0x03 & P)<< 16) | ((0x0F & Q) << 24));
+}
+
+/* Helper
+ * RCC control peripheral
+ * Backend for the RCC_enable/disable functions
+ * saves LOC
+ *
+ * Returns 0 upon success and 1 otherwise
+ *
+ */
+static uint8_t RCC_con_peripheral(peripheral_t peripheral, uint32_t state){
+	if(state != 1 && state != 0)
+		return 1;
+	switch(peripheral){
+		case(GPIOA):
+			RCC_AHB1ENR = (RCC_AHB1ENR & ~(1<<0)) | (state << 0);
+			break;
+		case(GPIOB):
+			RCC_AHB1ENR = (RCC_AHB1ENR & ~(1<<1)) | (state << 1);
+			break;
+		case(GPIOC):
+			RCC_AHB1ENR = (RCC_AHB1ENR & ~(1<<2)) | (state << 2);
+			break;
+		case(GPIOD):
+			RCC_AHB1ENR = (RCC_AHB1ENR & ~(1<<3)) | (state << 3);
+			break;
+		case(GPIOE):
+			RCC_AHB1ENR = (RCC_AHB1ENR & ~(1<<4)) | (state << 4);
+			break;
+		case(GPIOH):
+			RCC_AHB1ENR = (RCC_AHB1ENR & ~(1<<7)) | (state << 7);
+			break;
+		case(CRC):
+			RCC_AHB1ENR = (RCC_AHB1ENR & ~(1<<12)) | (state << 12);
+			break;
+		case(DMA1):
+			RCC_AHB1ENR = (RCC_AHB1ENR & ~(1<<21)) | (state << 21);
+			break;
+		case(DMA2):
+			RCC_AHB1ENR = (RCC_AHB1ENR & ~(1<<22)) | (state << 22);
+			break;
+		case(OTGFS):
+			RCC_AHB2ENR = (RCC_AHB2ENR & ~(1<<7)) | (state << 7);
+			break;
+		case(TIM2):
+			RCC_APB1ENR = (RCC_APB1ENR & ~(1<<0)) | (state << 0);
+			break;
+		case(TIM3):
+			RCC_APB1ENR = (RCC_APB1ENR & ~(1<<1)) | (state << 1);
+			break;
+		case(TIM4):
+			RCC_APB1ENR = (RCC_APB1ENR & ~(1<<2)) | (state << 2);
+			break;
+		case(TIM5):
+			RCC_APB1ENR = (RCC_APB1ENR & ~(1<<3)) | (state << 3);
+			break;
+		case(WWDG):
+			RCC_APB1ENR = (RCC_APB1ENR & ~(1<<11)) | (state << 11);
+			break;
+		case(SPI2):
+			RCC_APB1ENR = (RCC_APB1ENR & ~(1<<14)) | (state << 14);
+			break;
+		case(SPI3):
+			RCC_APB1ENR = (RCC_APB1ENR & ~(1<<15)) | (state << 15);
+			break;
+		case(USART2):
+			RCC_APB1ENR = (RCC_APB1ENR & ~(1<<17)) | (state << 17);
+			break;
+		case(I2C1):
+			RCC_APB1ENR = (RCC_APB1ENR & ~(1<<21)) | (state << 21);
+			break;
+		case(I2C2):
+			RCC_APB1ENR = (RCC_APB1ENR & ~(1<<22)) | (state << 22);
+			break;
+		case(I2C3):
+			RCC_APB1ENR = (RCC_APB1ENR & ~(1<<23)) | (state << 23);
+			break;
+		case(PWR):
+			RCC_APB1ENR = (RCC_APB1ENR & ~(1<<28)) | (state << 28);
+			break;
+		case(TIM1):
+			RCC_APB2ENR = (RCC_APB2ENR & ~(1<<0)) | (state << 0);
+			break;
+		case(USART1):
+			RCC_APB2ENR = (RCC_APB2ENR & ~(1<<4)) | (state << 4);
+			break;
+		case(USART6):
+			RCC_APB2ENR = (RCC_APB2ENR & ~(1<<5)) | (state << 5);
+			break;
+		case(ADC1):
+			RCC_APB2ENR = (RCC_APB2ENR & ~(1<<8)) | (state << 8);
+			break;
+		case(SDIO):
+			RCC_APB2ENR = (RCC_APB2ENR & ~(1<<11)) | (state << 11);
+			break;
+		case(SPI1):
+			RCC_APB2ENR = (RCC_APB2ENR & ~(1<<12)) | (state << 12);
+			break;
+		case(SPI4):
+			RCC_APB2ENR = (RCC_APB2ENR & ~(1<<13)) | (state << 13);
+			break;
+		case(SYSCFG):
+			RCC_APB2ENR = (RCC_APB2ENR & ~(1<<14)) | (state << 14);
+			break;
+		case(TIM9):
+			RCC_APB2ENR = (RCC_APB2ENR & ~(1<<16)) | (state << 16);
+			break;
+		case(TIM10):
+			RCC_APB2ENR = (RCC_APB2ENR & ~(1<<17)) | (state << 17);
+			break;
+		case(TIM11):
+			RCC_APB2ENR = (RCC_APB2ENR & ~(1<<18)) | (state << 18);
+			break;
+		default:
+			return 1;
+	}
+	return 0;
 }
