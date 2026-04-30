@@ -227,6 +227,176 @@ uint8_t RCC_clockout(clk_t clk, MCO_t mco, uint32_t prescaler){
 	return 0;
 }
 
+/*
+ * Reset a peripheral (check `enum peripheral_t`)
+ * works by setting and clearing the reset bit
+ *
+ * returns 0 upon success and 1 otherwise
+ */
+uint8_t RCC_reset_peripheral(peripheral_t peripheral){
+	switch(peripheral){
+		case(GPIOA):
+			RCC_AHB1RSTR |= (1<<0);
+			RCC_AHB1RSTR &= ~(1<<0);
+			break;
+		case(GPIOB):
+			RCC_AHB1RSTR |= (1<<1);
+			RCC_AHB1RSTR &= ~(1<<1);
+			break;
+		case(GPIOC):
+			RCC_AHB1RSTR |= (1<<2);
+			RCC_AHB1RSTR &= ~(1<<2);
+			break;
+		case(GPIOD):
+			RCC_AHB1RSTR |= (1<<3);
+			RCC_AHB1RSTR &= ~(1<<3);
+			break;
+		case(GPIOE):
+			RCC_AHB1RSTR |= (1<<4);
+			RCC_AHB1RSTR &= ~(1<<4);
+			break;
+		case(GPIOH):
+			RCC_AHB1RSTR |= (1<<7);
+			RCC_AHB1RSTR &= ~(1<<7);
+			break;
+		case(CRC):
+			RCC_AHB1RSTR |= (1<<12);
+			RCC_AHB1RSTR &= ~(1<<12);
+			break;
+		case(DMA1):
+			RCC_AHB1RSTR |= (1<<21);
+			RCC_AHB1RSTR &= ~(1<<21);
+			break;
+		case(DMA2):
+			RCC_AHB1RSTR |= (1<<22);
+			RCC_AHB1RSTR &= ~(1<<22);
+			break;
+		case(OTGFS):
+			RCC_AHB2RSTR |= (1<<7);
+			RCC_AHB2RSTR &= ~(1<<7);
+			break;
+		case(TIM2):
+			RCC_APB1RSTR |= (1<<0);
+			RCC_APB1RSTR &= ~(1<<0);
+			break;
+		case(TIM3):
+			RCC_APB1RSTR |= (1<<1);
+			RCC_APB1RSTR &= ~(1<<1);
+			break;
+		case(TIM4):
+			RCC_APB1RSTR |= (1<<2);
+			RCC_APB1RSTR &= ~(1<<2);
+			break;
+		case(TIM5):
+			RCC_APB1RSTR |= (1<<3);
+			RCC_APB1RSTR &= ~(1<<3);
+			break;
+		case(WWDG):
+			RCC_APB1RSTR |= (1<<11);
+			RCC_APB1RSTR &= ~(1<<11);
+			break;
+		case(SPI2):
+			RCC_APB1RSTR |= (1<<14);
+			RCC_APB1RSTR &= ~(1<<14);
+			break;
+		case(SPI3):
+			RCC_APB1RSTR |= (1<<15);
+			RCC_APB1RSTR &= ~(1<<15);
+			break;
+		case(USART2):
+			RCC_APB1RSTR |= (1<<17);
+			RCC_APB1RSTR &= ~(1<<17);
+			break;
+		case(I2C1):
+			RCC_APB1RSTR |= (1<<21);
+			RCC_APB1RSTR &= ~(1<<21);
+			break;
+		case(I2C2):
+			RCC_APB1RSTR |= (1<<22);
+			RCC_APB1RSTR &= ~(1<<22);
+			break;
+		case(I2C3):
+			RCC_APB1RSTR |= (1<<23);
+			RCC_APB1RSTR &= ~(1<<23);
+			break;
+		case(PWR):
+			RCC_APB1RSTR |= (1<<28);
+			RCC_APB1RSTR &= ~(1<<28);
+			break;
+		case(TIM1):
+			RCC_APB2RSTR |= (1<<0);
+			RCC_APB2RSTR &= ~(1<<0);
+			break;
+		case(USART1):
+			RCC_APB2RSTR |= (1<<4);
+			RCC_APB2RSTR &= ~(1<<4);
+			break;
+		case(USART6):
+			RCC_APB2RSTR |= (1<<5);
+			RCC_APB2RSTR &= ~(1<<5);
+			break;
+		case(ADC1):
+			RCC_APB2RSTR |= (1<<8);
+			RCC_APB2RSTR &= ~(1<<8);
+			break;
+		case(SDIO):
+			RCC_APB2RSTR |= (1<<11);
+			RCC_APB2RSTR &= ~(1<<11);
+			break;
+		case(SPI1):
+			RCC_APB2RSTR |= (1<<12);
+			RCC_APB2RSTR &= ~(1<<12);
+			break;
+		case(SPI4):
+			RCC_APB2RSTR |= (1<<13);
+			RCC_APB2RSTR &= ~(1<<13);
+			break;
+		case(SYSCFG):
+			RCC_APB2RSTR |= (1<<14);
+			RCC_APB2RSTR &= ~(1<<14);
+			break;
+		case(TIM9):
+			RCC_APB2RSTR |= (1<<16);
+			RCC_APB2RSTR &= ~(1<<16);
+			break;
+		case(TIM10):
+			RCC_APB2RSTR |= (1<<17);
+			RCC_APB2RSTR &= ~(1<<17);
+			break;
+		case(TIM11):
+			RCC_APB2RSTR |= (1<<18);
+			RCC_APB2RSTR &= ~(1<<18);
+			break;
+		default:
+			return 1;
+	}
+	return 0;
+}
+
+/*
+ * Enable a peripheral (check `enum peripheral_t`)
+ *
+ * return 0 upon success and 1 otherwise
+ *
+ */
+uint8_t RCC_enable_peripheral(peripheral_t peripheral){
+
+	return RCC_con_peripheral(peripheral, 1);
+
+}
+
+/*
+ * Disable a peripheral (check `enum peripheral_t`)
+ *
+ * return 0 upon success and 1 otherwise
+ *
+ */
+uint8_t RCC_disable_peripheral(peripheral_t peripheral){
+
+	return RCC_con_peripheral(peripheral, 0);
+
+}
+
 /* Helper
  * Set the multiplier/divisor values for the main PLL.
  * Does no checking and returns nothing.
