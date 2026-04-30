@@ -95,4 +95,8 @@ typedef enum{
 uint8_t RCC_set_clksrc(sysclk_src_t src);
 uint8_t RCC_set_PLL(sysclk_src_t src, uint32_t M, uint32_t N, uint32_t P, uint32_t Q);
 uint8_t RCC_clockout(clk_t clk, MCO_t mco, uint32_t prescaler);
+uint8_t RCC_reset_peripheral(peripheral_t peripheral);
+uint8_t RCC_enable_peripheral(peripheral_t peripheral);
+uint8_t RCC_disable_peripheral(peripheral_t peripheral);
+uint8_t RCC_reset_bus(bus_t bus);
 #endif // RCC_H
