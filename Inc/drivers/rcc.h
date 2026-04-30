@@ -79,6 +79,19 @@ typedef enum{
 	HSE,HSI,PLL
 }sysclk_src_t;
 
+// Bus options
+typedef enum{
+	AHB1,AHB2,APB1,APB2
+}bus_t;
+
+// Peripherals
+typedef enum{
+	GPIOA,GPIOB,GPIOC,GPIOD,GPIOE,GPIOH,CRC,OTGFS,
+	TIM1,TIM2,TIM3,TIM4,TIM5,TIM9,TIM10,TIM11,
+	WWDG,SPI2,SPI3,USART1,USART2,USART6,I2C1,I2C2,
+	SDIO,SPI1,SPI4,DMA1,DMA2,PWR,SYSCFG,I2C3,ADC1
+}peripheral_t;
+
 uint8_t RCC_set_clksrc(sysclk_src_t src);
 uint8_t RCC_set_PLL(sysclk_src_t src, uint32_t M, uint32_t N, uint32_t P, uint32_t Q);
 uint8_t RCC_clockout(clk_t clk, MCO_t mco, uint32_t prescaler);
