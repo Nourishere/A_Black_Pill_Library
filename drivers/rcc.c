@@ -321,7 +321,31 @@ uint8_t RCC_enable_peripheral(peripheral_t peripheral){
  */
 uint8_t RCC_disable_peripheral(peripheral_t peripheral){
 
-	return RCC_con_peripheral(peripheral, 0);
+	return RCC_con_peripheral(peripheral, 0, 0);
+
+}
+
+/*
+ * Enable a peripheral when the deivce is sleep mode (check `enum peripheral_t`)
+ *
+ * return 0 upon success and 1 otherwise
+ *
+ */
+uint8_t RCC_enable_LP_peripheral(peripheral_t peripheral){
+
+	return RCC_con_peripheral(peripheral, 1, 1);
+
+}
+
+/*
+ * Disable a peripheral when the deivce is sleep mode (check `enum peripheral_t`)
+ *
+ * return 0 upon success and 1 otherwise
+ *
+ */
+uint8_t RCC_disable_LP_peripheral(peripheral_t peripheral){
+
+	return RCC_con_peripheral(peripheral, 0, 1);
 
 }
 
