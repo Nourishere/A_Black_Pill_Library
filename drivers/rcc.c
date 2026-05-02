@@ -9,7 +9,58 @@
 #include <../Inc/drivers/rcc.h>
 
 static void RCC_write_PLL_params(uint32_t M, uint32_t N, uint32_t P, uint32_t Q);
-static uint8_t RCC_con_peripheral(peripheral_t peripheral, uint32_t state);
+static uint8_t RCC_con_peripheral(peripheral_t peripheral, uint32_t state, uint32_t lp);
+
+/*
+ *
+ * A peripheral lookup table
+ * See (`typedef struct peripheral_reg_t`)
+ * For each bus, there is a register for enabling/disabling and
+ * another for reseting certain peripherals. A bus has the same offset
+ * for all peripherals across all registers.
+ *
+ * For example, GPIOC is on the AHB1 bus. Its reset bit is the 2nd bit
+ * in the AHB1RSTR and its enable/disable bit is also the 2nd bit in the
+ * AHB1ENR.
+ *
+ * The address of the low power enable register and the reset register can
+ * be obtained from the enable register via a +0x20 and a -0x20 offset respectively.
+ */
+static const peripheral_reg_t peripheral_lookup_table[] = {
+    [GPIOA]  = {ADDR_RCC_AHB1ENR, 0},
+    [GPIOB]  = {ADDR_RCC_AHB1ENR, 1},
+    [GPIOC]  = {ADDR_RCC_AHB1ENR, 2},
+    [GPIOD]  = {ADDR_RCC_AHB1ENR, 3},
+    [GPIOE]  = {ADDR_RCC_AHB1ENR, 4},
+    [GPIOH]  = {ADDR_RCC_AHB1ENR, 7},
+    [CRC]    = {ADDR_RCC_AHB1ENR, 12},
+    [DMA1]   = {ADDR_RCC_AHB1ENR, 21},
+    [DMA2]   = {ADDR_RCC_AHB1ENR, 22},
+    [OTGFS]  = {ADDR_RCC_AHB2ENR, 7},
+    [TIM2]   = {ADDR_RCC_APB1ENR, 0},
+    [TIM3]   = {ADDR_RCC_APB1ENR, 1},
+    [TIM4]   = {ADDR_RCC_APB1ENR, 2},
+    [TIM5]   = {ADDR_RCC_APB1ENR, 3},
+    [WWDG]   = {ADDR_RCC_APB1ENR, 11},
+    [SPI2]   = {ADDR_RCC_APB1ENR, 14},
+    [SPI3]   = {ADDR_RCC_APB1ENR, 15},
+    [USART2] = {ADDR_RCC_APB1ENR, 17},
+    [I2C1]   = {ADDR_RCC_APB1ENR, 21},
+    [I2C2]   = {ADDR_RCC_APB1ENR, 22},
+    [I2C3]   = {ADDR_RCC_APB1ENR, 23},
+    [PWR]    = {ADDR_RCC_APB1ENR, 28},
+    [TIM1]   = {ADDR_RCC_APB2ENR, 0},
+    [USART1] = {ADDR_RCC_APB2ENR, 4},
+    [USART6] = {ADDR_RCC_APB2ENR, 5},
+    [ADC1]   = {ADDR_RCC_APB2ENR, 8},
+    [SDIO]   = {ADDR_RCC_APB2ENR, 11},
+    [SPI1]   = {ADDR_RCC_APB2ENR, 12},
+    [SPI4]   = {ADDR_RCC_APB2ENR, 13},
+    [SYSCFG] = {ADDR_RCC_APB2ENR, 14},
+    [TIM9]   = {ADDR_RCC_APB2ENR, 16},
+    [TIM10]  = {ADDR_RCC_APB2ENR, 17},
+    [TIM11]  = {ADDR_RCC_APB2ENR, 18},
+};
 
 /*
  * Set the clock source for the system clock (SYSCLOCK)
@@ -235,142 +286,18 @@ uint8_t RCC_clockout(clk_t clk, MCO_t mco, uint32_t prescaler){
  * returns 0 upon success and 1 otherwise
  */
 uint8_t RCC_reset_peripheral(peripheral_t peripheral){
-	switch(peripheral){
-		case(GPIOA):
-			RCC_AHB1RSTR |= (1<<0);
-			RCC_AHB1RSTR &= ~(1<<0);
-			break;
-		case(GPIOB):
-			RCC_AHB1RSTR |= (1<<1);
-			RCC_AHB1RSTR &= ~(1<<1);
-			break;
-		case(GPIOC):
-			RCC_AHB1RSTR |= (1<<2);
-			RCC_AHB1RSTR &= ~(1<<2);
-			break;
-		case(GPIOD):
-			RCC_AHB1RSTR |= (1<<3);
-			RCC_AHB1RSTR &= ~(1<<3);
-			break;
-		case(GPIOE):
-			RCC_AHB1RSTR |= (1<<4);
-			RCC_AHB1RSTR &= ~(1<<4);
-			break;
-		case(GPIOH):
-			RCC_AHB1RSTR |= (1<<7);
-			RCC_AHB1RSTR &= ~(1<<7);
-			break;
-		case(CRC):
-			RCC_AHB1RSTR |= (1<<12);
-			RCC_AHB1RSTR &= ~(1<<12);
-			break;
-		case(DMA1):
-			RCC_AHB1RSTR |= (1<<21);
-			RCC_AHB1RSTR &= ~(1<<21);
-			break;
-		case(DMA2):
-			RCC_AHB1RSTR |= (1<<22);
-			RCC_AHB1RSTR &= ~(1<<22);
-			break;
-		case(OTGFS):
-			RCC_AHB2RSTR |= (1<<7);
-			RCC_AHB2RSTR &= ~(1<<7);
-			break;
-		case(TIM2):
-			RCC_APB1RSTR |= (1<<0);
-			RCC_APB1RSTR &= ~(1<<0);
-			break;
-		case(TIM3):
-			RCC_APB1RSTR |= (1<<1);
-			RCC_APB1RSTR &= ~(1<<1);
-			break;
-		case(TIM4):
-			RCC_APB1RSTR |= (1<<2);
-			RCC_APB1RSTR &= ~(1<<2);
-			break;
-		case(TIM5):
-			RCC_APB1RSTR |= (1<<3);
-			RCC_APB1RSTR &= ~(1<<3);
-			break;
-		case(WWDG):
-			RCC_APB1RSTR |= (1<<11);
-			RCC_APB1RSTR &= ~(1<<11);
-			break;
-		case(SPI2):
-			RCC_APB1RSTR |= (1<<14);
-			RCC_APB1RSTR &= ~(1<<14);
-			break;
-		case(SPI3):
-			RCC_APB1RSTR |= (1<<15);
-			RCC_APB1RSTR &= ~(1<<15);
-			break;
-		case(USART2):
-			RCC_APB1RSTR |= (1<<17);
-			RCC_APB1RSTR &= ~(1<<17);
-			break;
-		case(I2C1):
-			RCC_APB1RSTR |= (1<<21);
-			RCC_APB1RSTR &= ~(1<<21);
-			break;
-		case(I2C2):
-			RCC_APB1RSTR |= (1<<22);
-			RCC_APB1RSTR &= ~(1<<22);
-			break;
-		case(I2C3):
-			RCC_APB1RSTR |= (1<<23);
-			RCC_APB1RSTR &= ~(1<<23);
-			break;
-		case(PWR):
-			RCC_APB1RSTR |= (1<<28);
-			RCC_APB1RSTR &= ~(1<<28);
-			break;
-		case(TIM1):
-			RCC_APB2RSTR |= (1<<0);
-			RCC_APB2RSTR &= ~(1<<0);
-			break;
-		case(USART1):
-			RCC_APB2RSTR |= (1<<4);
-			RCC_APB2RSTR &= ~(1<<4);
-			break;
-		case(USART6):
-			RCC_APB2RSTR |= (1<<5);
-			RCC_APB2RSTR &= ~(1<<5);
-			break;
-		case(ADC1):
-			RCC_APB2RSTR |= (1<<8);
-			RCC_APB2RSTR &= ~(1<<8);
-			break;
-		case(SDIO):
-			RCC_APB2RSTR |= (1<<11);
-			RCC_APB2RSTR &= ~(1<<11);
-			break;
-		case(SPI1):
-			RCC_APB2RSTR |= (1<<12);
-			RCC_APB2RSTR &= ~(1<<12);
-			break;
-		case(SPI4):
-			RCC_APB2RSTR |= (1<<13);
-			RCC_APB2RSTR &= ~(1<<13);
-			break;
-		case(SYSCFG):
-			RCC_APB2RSTR |= (1<<14);
-			RCC_APB2RSTR &= ~(1<<14);
-			break;
-		case(TIM9):
-			RCC_APB2RSTR |= (1<<16);
-			RCC_APB2RSTR &= ~(1<<16);
-			break;
-		case(TIM10):
-			RCC_APB2RSTR |= (1<<17);
-			RCC_APB2RSTR &= ~(1<<17);
-			break;
-		case(TIM11):
-			RCC_APB2RSTR |= (1<<18);
-			RCC_APB2RSTR &= ~(1<<18);
-			break;
-		default:
-			return 1;
-	}
+	if(peripheral >= sizeof(peripheral_lookup_table)/sizeof(peripheral_lookup_table[0]))
+		return 1;
+	volatile uint32_t* reg = peripheral_lookup_table[peripheral].enr;
+	uint32_t bit = (peripheral_lookup_table[peripheral].bit_position);
+
+	// Reset register of any bus is at an offset of -0x20 from the Enable register
+	// 0x08 is 0x20/0x04 for pointer arithmetic
+	reg-= 0x08;
+
+	*reg &= ~(1<<bit);
+	*reg |= 1<<bit;
+
 	return 0;
 }
 
@@ -382,7 +309,7 @@ uint8_t RCC_reset_peripheral(peripheral_t peripheral){
  */
 uint8_t RCC_enable_peripheral(peripheral_t peripheral){
 
-	return RCC_con_peripheral(peripheral, 1);
+	return RCC_con_peripheral(peripheral, 1, 0);
 
 }
 
@@ -410,117 +337,24 @@ static void RCC_write_PLL_params(uint32_t M, uint32_t N, uint32_t P, uint32_t Q)
 
 /* Helper
  * RCC control peripheral
- * Backend for the RCC_enable/disable functions
- * saves LOC
+ * Backend for all RCC_en/dis functions
+ *
+ * state: 0 for disable, 1 for enable
+ * lp: 0 for normal mode, 1 for low power mode
  *
  * Returns 0 upon success and 1 otherwise
  *
  */
-static uint8_t RCC_con_peripheral(peripheral_t peripheral, uint32_t state){
+static uint8_t RCC_con_peripheral(peripheral_t peripheral, uint32_t state, uint32_t lp){
+	if(peripheral >= sizeof(peripheral_lookup_table)/sizeof(peripheral_lookup_table[0]))
+		return 1;
 	if(state != 1 && state != 0)
 		return 1;
-	switch(peripheral){
-		case(GPIOA):
-			RCC_AHB1ENR = (RCC_AHB1ENR & ~(1<<0)) | (state << 0);
-			break;
-		case(GPIOB):
-			RCC_AHB1ENR = (RCC_AHB1ENR & ~(1<<1)) | (state << 1);
-			break;
-		case(GPIOC):
-			RCC_AHB1ENR = (RCC_AHB1ENR & ~(1<<2)) | (state << 2);
-			break;
-		case(GPIOD):
-			RCC_AHB1ENR = (RCC_AHB1ENR & ~(1<<3)) | (state << 3);
-			break;
-		case(GPIOE):
-			RCC_AHB1ENR = (RCC_AHB1ENR & ~(1<<4)) | (state << 4);
-			break;
-		case(GPIOH):
-			RCC_AHB1ENR = (RCC_AHB1ENR & ~(1<<7)) | (state << 7);
-			break;
-		case(CRC):
-			RCC_AHB1ENR = (RCC_AHB1ENR & ~(1<<12)) | (state << 12);
-			break;
-		case(DMA1):
-			RCC_AHB1ENR = (RCC_AHB1ENR & ~(1<<21)) | (state << 21);
-			break;
-		case(DMA2):
-			RCC_AHB1ENR = (RCC_AHB1ENR & ~(1<<22)) | (state << 22);
-			break;
-		case(OTGFS):
-			RCC_AHB2ENR = (RCC_AHB2ENR & ~(1<<7)) | (state << 7);
-			break;
-		case(TIM2):
-			RCC_APB1ENR = (RCC_APB1ENR & ~(1<<0)) | (state << 0);
-			break;
-		case(TIM3):
-			RCC_APB1ENR = (RCC_APB1ENR & ~(1<<1)) | (state << 1);
-			break;
-		case(TIM4):
-			RCC_APB1ENR = (RCC_APB1ENR & ~(1<<2)) | (state << 2);
-			break;
-		case(TIM5):
-			RCC_APB1ENR = (RCC_APB1ENR & ~(1<<3)) | (state << 3);
-			break;
-		case(WWDG):
-			RCC_APB1ENR = (RCC_APB1ENR & ~(1<<11)) | (state << 11);
-			break;
-		case(SPI2):
-			RCC_APB1ENR = (RCC_APB1ENR & ~(1<<14)) | (state << 14);
-			break;
-		case(SPI3):
-			RCC_APB1ENR = (RCC_APB1ENR & ~(1<<15)) | (state << 15);
-			break;
-		case(USART2):
-			RCC_APB1ENR = (RCC_APB1ENR & ~(1<<17)) | (state << 17);
-			break;
-		case(I2C1):
-			RCC_APB1ENR = (RCC_APB1ENR & ~(1<<21)) | (state << 21);
-			break;
-		case(I2C2):
-			RCC_APB1ENR = (RCC_APB1ENR & ~(1<<22)) | (state << 22);
-			break;
-		case(I2C3):
-			RCC_APB1ENR = (RCC_APB1ENR & ~(1<<23)) | (state << 23);
-			break;
-		case(PWR):
-			RCC_APB1ENR = (RCC_APB1ENR & ~(1<<28)) | (state << 28);
-			break;
-		case(TIM1):
-			RCC_APB2ENR = (RCC_APB2ENR & ~(1<<0)) | (state << 0);
-			break;
-		case(USART1):
-			RCC_APB2ENR = (RCC_APB2ENR & ~(1<<4)) | (state << 4);
-			break;
-		case(USART6):
-			RCC_APB2ENR = (RCC_APB2ENR & ~(1<<5)) | (state << 5);
-			break;
-		case(ADC1):
-			RCC_APB2ENR = (RCC_APB2ENR & ~(1<<8)) | (state << 8);
-			break;
-		case(SDIO):
-			RCC_APB2ENR = (RCC_APB2ENR & ~(1<<11)) | (state << 11);
-			break;
-		case(SPI1):
-			RCC_APB2ENR = (RCC_APB2ENR & ~(1<<12)) | (state << 12);
-			break;
-		case(SPI4):
-			RCC_APB2ENR = (RCC_APB2ENR & ~(1<<13)) | (state << 13);
-			break;
-		case(SYSCFG):
-			RCC_APB2ENR = (RCC_APB2ENR & ~(1<<14)) | (state << 14);
-			break;
-		case(TIM9):
-			RCC_APB2ENR = (RCC_APB2ENR & ~(1<<16)) | (state << 16);
-			break;
-		case(TIM10):
-			RCC_APB2ENR = (RCC_APB2ENR & ~(1<<17)) | (state << 17);
-			break;
-		case(TIM11):
-			RCC_APB2ENR = (RCC_APB2ENR & ~(1<<18)) | (state << 18);
-			break;
-		default:
-			return 1;
-	}
+	// In case of low power operation, the low power enable register is exactly at a +0x20 offset (0x20/0x04 in pointer arith)
+	volatile uint32_t* reg = (lp)?(peripheral_lookup_table[peripheral].enr+0x08):(peripheral_lookup_table[peripheral].enr);
+	uint32_t bit = (peripheral_lookup_table[peripheral].bit_position);
+
+	*reg = (*reg & ~(1<<bit)) | (state < bit);
+
 	return 0;
 }

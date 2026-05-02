@@ -28,12 +28,16 @@
 #define RCC_APB2RSTR	*((volatile uint32_t*)(RCC_BASE+0x24))
 // AHB1 peripheral clock enable
 #define RCC_AHB1ENR		*((volatile uint32_t*)(RCC_BASE+0x30))
+#define ADDR_RCC_AHB1ENR		((volatile uint32_t*)(RCC_BASE+0x30))
 // AHB2 peripheral clock enable
 #define RCC_AHB2ENR		*((volatile uint32_t*)(RCC_BASE+0x34))
+#define ADDR_RCC_AHB2ENR		((volatile uint32_t*)(RCC_BASE+0x34))
 // APB1 peripheral clock enable
 #define RCC_APB1ENR		*((volatile uint32_t*)(RCC_BASE+0x40))
+#define ADDR_RCC_APB1ENR		((volatile uint32_t*)(RCC_BASE+0x40))
 // APB2 peripheral clock enable
 #define RCC_APB2ENR		*((volatile uint32_t*)(RCC_BASE+0x44))
+#define ADDR_RCC_APB2ENR		((volatile uint32_t*)(RCC_BASE+0x44))
 // AHB1 peripheral clock enable in low power mode
 #define RCC_AHB1LPENR	*((volatile uint32_t*)(RCC_BASE+0x50))
 // AHB2 peripheral clock enable in low power mode
@@ -91,6 +95,12 @@ typedef enum{
 	WWDG,SPI2,SPI3,USART1,USART2,USART6,I2C1,I2C2,
 	SDIO,SPI1,SPI4,DMA1,DMA2,PWR,SYSCFG,I2C3,ADC1
 }peripheral_t;
+
+// Peripheral register lookup table
+typedef struct {
+    volatile uint32_t *enr;
+    uint32_t bit_position;
+}peripheral_reg_t;
 
 uint8_t RCC_set_clksrc(sysclk_src_t src);
 uint8_t RCC_set_PLL(sysclk_src_t src, uint32_t M, uint32_t N, uint32_t P, uint32_t Q);
