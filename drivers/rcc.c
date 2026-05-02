@@ -295,8 +295,8 @@ uint8_t RCC_reset_peripheral(peripheral_t peripheral){
 	// 0x08 is 0x20/0x04 for pointer arithmetic
 	reg-= 0x08;
 
-	*reg &= ~(1<<bit);
 	*reg |= 1<<bit;
+	*reg &= ~(1<<bit);
 
 	return 0;
 }
