@@ -349,6 +349,64 @@ uint8_t RCC_disable_LP_peripheral(peripheral_t peripheral){
 
 }
 
+/*
+ * Initializes the PLLI2S
+ * NOTE: The main PLL controls the input clock frequency source and the M multiplier
+ *
+ * Return 0 upon success, 1 otherwise
+ */
+uint8_t RCC_set_PLLI2S(uint32_t R, uint32_t N){
+	clk_t pll_clk;
+	uint32_t freq;
+	uint32_t M;
+
+	if(R > MAX_R || R < MIN_R)
+		return 1;
+	if(N > MAX_N || N < MIN_N)
+		return 1;
+		
+	uint32_t state = ((RCC_CR >> 26) & 0x01)?1:0;
+	RCC_CR &= ~(1 << 26);
+
+	// Determine which clock source the PLL is using
+	// (this is set by the main PLL)	
+	pll_clk = ((RCC_PLLCFGR >> 22) & 0x01)?clk_HSE:clk_HSI;
+	// frequency of HSI is 16 MHz
+	freq = (pll_clk==clk_HSI)?HSI_FRQ:HSE_FRQ;
+	// Read the M value (set by the main PLL)
+	M = (RCC_PLLCFGR & 0x3F);
+	
+	if(M < MIN_M || M > MAX_M){
+		if(state)
+			RCC_CR |= (1 << 26);
+		return 1;
+	}
+	uint32_t vco_in = freq / M;
+	if(N > UINT32_MAX / vco_in){ /* overflow */
+		if(state)
+			RCC_CR |= (1 << 26);
+		return 1;
+	}
+	uint32_t vco = vco_in * N;
+	if(vco > MAX_N || vco < MIN_N){
+		if(state)
+			RCC_CR |= (1 << 26);
+		return 1;
+	}
+
+	// Write the R division factor
+	RCC_PLLI2SCFGR &= ~(0x7 << 28);
+	RCC_PLLI2SCFGR |= (R << 28);
+
+	// Write the N multiplier
+	RCC_PLLI2SCFGR &= ~(0x1FF << 6);
+	RCC_PLLI2SCFGR |= (N << 6);
+
+	if(state)
+		RCC_CR |= (1 << 26);
+	return 0;	
+}
+
 /* Helper
  * Set the multiplier/divisor values for the main PLL.
  * Does no checking and returns nothing.
