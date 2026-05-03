@@ -105,7 +105,7 @@ typedef enum{
 
 // Bus options
 typedef enum{
-	AHB1,AHB2,APB1,APB2
+	AHB,APB1,APB2
 }bus_t;
 
 // Peripherals
