@@ -57,7 +57,7 @@
 // Dedicated clocks configuration register 
 #define RCC_DCKCFGR		*((volatile uint32_t*)(RCC_BASE+0x8C))
 
-// Max/min output frequency (in MHz) of the following PLL divisors/multipliers
+// Max/min prescaler value of the following PLL divisors/multipliers
 #define MAX_M 2
 #define MIN_M 1
 #define MAX_N 432
@@ -65,6 +65,19 @@
 #define MAX_P 84
 #define MIN_R 2
 #define MAX_R 7
+// Max/min output frequency (in Hz) of the following PLL divisors/multipliers
+#define MAX_M_FRQ (2*1000000)
+#define MIN_M_FRQ (1*1000000)
+#define MAX_N_FRQ (432*1000000)
+#define MIN_N_FRQ (192*1000000)
+#define MAX_P_FRQ (84*1000000)
+#define MIN_R_FRQ (2*1000000)
+#define MAX_R_FRQ (7*1000000)
+#define MAX_Q_FRQ (48*1000000)
+// Max RTC output frequency (in Hz0
+#define MAX_RTC_FRQ (1000000)
+// Max AHB bus prescaler
+#define MAX_AHB_PRS 512
 
 // HSI frequency (in Hz)
 #define HSI_FRQ 16000000

@@ -451,7 +451,7 @@ uint8_t RCC_set_PLLI2S(uint32_t R, uint32_t N){
 		return 1;
 	}
 	uint32_t vco = vco_in * N;
-	if(vco > MAX_N || vco < MIN_N){
+	if(vco > MAX_N_FRQ || vco < MIN_N_FRQ){
 		if(state)
 			RCC_CR |= (1 << 26);
 		return 1;
