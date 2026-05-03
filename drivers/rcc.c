@@ -186,6 +186,8 @@ uint8_t RCC_set_bus_prescaler(bus_t bus, uint32_t prescaler){
 /*
  * Configure the main PLL.
  * Use enum values from `sysclk_src` (Inc/drivers/rcc.h)
+ *
+ * NOTE: it's an error if you call this function when the PLL is used as the system clock
  * NOTE: the PLL is turned off for configuration and then restored at the end.
  * NOTE: for HSE clock, you need to input the correct parameters to insure that 
  * 		 the output clock frequency is in the valid range.
@@ -213,42 +215,23 @@ uint8_t RCC_set_PLL(sysclk_src_t src, uint32_t M, uint32_t N, uint32_t P, uint32
 
 	// Turn off the PLL for configuration
 	uint32_t state = ((RCC_CR>>24)&1)?1:0; 
-	RCC_CR &= ~(1 << 24);
+	if(RCC_disable_PLL())
+		return 1;
+
+	// Check for any frequency violation
+	if(RCC_check_PLL_freq_flow(src, M, N, P, Q)){
+			if(state)
+				RCC_CR |= (1 << 24);
+			return 1; // overflow
+	}
 
 	switch(src){
 		case(HSE):
-			// Calculate P
-			P = (P/2)-1;	
 			// Set PLL source to HSE
 			RCC_PLLCFGR |= (1 << 22);
 			RCC_write_PLL_params(M,N,P,Q);
 			break;
 		case(HSI):
-			uint32_t intermediate1;
-			uint32_t intermediate2;
-		// HSI uses an internal 16 MHz oscillator
-			if(HSI_FRQ/M < MIN_M || (intermediate1=HSI_FRQ/M) > MAX_M){
-				if(state)
-					RCC_CR |= (1 << 24);
-				return 1;
-			}
-			if(intermediate1 != 0 && N > UINT32_MAX / intermediate1){
-				if(state)
-					RCC_CR |= (1 << 24);
-				return 1; // overflow
-			}
-			if(intermediate1*N > MAX_N || (intermediate2=intermediate1*N) < MIN_N){
-				if(state)
-					RCC_CR |= (1 << 24);
-				return 1; // overflow
-			}
-			if(intermediate2/P > 84){
-				if(state)
-					RCC_CR |= (1 << 24);
-				return 1; // overflow
-			}
-			// Calculate P
-			P = (P/2)-1;	
 			// Set PLL source to HSI
 			RCC_PLLCFGR &= ~(1 << 22);
 			RCC_write_PLL_params(M,N,P,Q);
@@ -259,8 +242,10 @@ uint8_t RCC_set_PLL(sysclk_src_t src, uint32_t M, uint32_t N, uint32_t P, uint32
 			return 1; // overflow
 	}
 	// If PLL was on, turn it back on
-	if(state)
-		RCC_CR |= (1 << 24);
+	if(state){
+		if(RCC_enable_PLL())
+			return 1;
+	}
 	
 	return 0;
 }
@@ -429,7 +414,8 @@ uint8_t RCC_set_PLLI2S(uint32_t R, uint32_t N){
 		return 1;
 		
 	uint32_t state = ((RCC_CR >> 26) & 0x01)?1:0;
-	RCC_CR &= ~(1 << 26);
+	if(RCC_disable_PLLI2S())
+		return 1;
 
 	// Determine which clock source the PLL is using
 	// (this is set by the main PLL)	
@@ -465,8 +451,10 @@ uint8_t RCC_set_PLLI2S(uint32_t R, uint32_t N){
 	RCC_PLLI2SCFGR &= ~(0x1FF << 6);
 	RCC_PLLI2SCFGR |= (N << 6);
 
-	if(state)
-		RCC_CR |= (1 << 26);
+	if(state){
+		if(RCC_enable_PLLI2S())
+			return 1;
+	}
 	return 0;	
 }
 
