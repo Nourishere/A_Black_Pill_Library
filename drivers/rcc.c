@@ -77,41 +77,41 @@ uint8_t RCC_set_clksrc(sysclk_src_t src){
 			RCC_CR |= (1 << 16);
 			// wait till ready
 			while(!(RCC_CR & (1 << 17))){
-				// better add a countdown here	
+				// TODO: better add a countdown here
 			}
 
 			// select the clock
 			RCC_CFGR &= ~(0x3<<0);
 			RCC_CFGR |= (0x1<<0);
 			while(((RCC_CFGR >> 2) & (0x03)) != 0x01){
-				// better add a countdown here	
+				// TODO: better add a countdown here
 			}
 			break;
 		case(HSI):
 			RCC_CR |= (1 << 0);
 			while(!(RCC_CR & (1 << 1))){
-				// better add a countdown here	
+				// TODO: better add a countdown here
 			}
 
 			// select the clock
 			RCC_CFGR &= ~(0x3<<0);
 			RCC_CFGR |= (0x0<<0);
 			while(((RCC_CFGR >> 2) & (0x03)) != 0x00){
-				// better add a countdown here	
+				// TODO: better add a countdown here
 			}
 			break;
 		// PLL should be configured (check `RCC_set_PLL`)
 		case(PLL):
 			RCC_CR |= (1 << 24);
 			while(!(RCC_CR & (1 << 25))){
-				// better add a countdown here	
+				// TODO: better add a countdown here
 			}
 
 			// select the clock
 			RCC_CFGR &= ~(0x3<<0);
 			RCC_CFGR |= (0x1<<1);
 			while(((RCC_CFGR >> 2) & (0x03)) != 0x1<<1){
-				// better add a countdown here	
+				// TODO: better add a countdown here
 			}
 			break;
 		default:
