@@ -10,6 +10,8 @@
 
 static void RCC_write_PLL_params(uint32_t M, uint32_t N, uint32_t P, uint32_t Q);
 static uint8_t RCC_con_peripheral(peripheral_t peripheral, uint32_t state, uint32_t lp);
+static uint8_t RCC_get_PLL_params(uint32_t* M, uint32_t* N, uint32_t* P, uint32_t* Q);
+static uint8_t RCC_check_PLL_freq_flow(sysclk_src_t src, uint32_t M, uint32_t N, uint32_t P, uint32_t Q);
 
 /*
  *
@@ -440,3 +442,66 @@ static uint8_t RCC_con_peripheral(peripheral_t peripheral, uint32_t state, uint3
 
 	return 0;
 }
+
+/* Helper
+ *
+ * Read the current PLL division/prescaler values
+ * NOTE: the factors are the divisor values not the register values
+ * 		 It's the case for most factors to match their register values
+ * 		 only P is as exception.
+ *
+ * M,N,P, and Q: pointers to uint32_t to store the factors
+ *
+ * Return 0 upon success and 1 otherwise
+ *
+ */
+static uint8_t RCC_get_PLL_params(uint32_t* M, uint32_t* N, uint32_t* P, uint32_t* Q){
+	if(M == NULL || N == NULL || P == NULL || Q == NULL)
+		return 1;
+	*M = RCC_PLLCFGR & 0x3F;
+	*N = (RCC_PLLCFGR >> 6) & 0x1FF;
+	*P = (RCC_PLLCFGR >> 16) & 0x03;
+	*P = ((*P)+1)*2;
+	*Q = (RCC_PLLCFGR >> 24) & 0x0F;
+	return 0;
+}
+
+/* Helper
+ *
+ * Check the frequency flow for the main PLL.
+ * Any frequency violation within the PLL will return 1.
+ *
+ * Returns 0 upon success, 1 otherwise
+ *
+ */
+static uint8_t RCC_check_PLL_freq_flow(sysclk_src_t src, uint32_t M, uint32_t N, uint32_t P, uint32_t Q){
+	uint32_t intermediate1;
+	uint32_t intermediate2;
+	uint32_t intermediate3;
+	uint32_t src_freq;
+	if(M == 0 || Q == 0)
+		return 1;	
+	if(src == HSI)
+		src_freq = HSI_FRQ;
+	else if(src == HSE)
+		src_freq = HSE_FRQ;
+	else
+		return 1;
+
+	intermediate1 = src_freq / M;
+	// HSI uses an internal 16 MHz oscillator
+	if(src_freq/M < MIN_M_FRQ || intermediate1 > MAX_M_FRQ)
+		return 1;
+	if(intermediate1 != 0 && N > UINT32_MAX / intermediate1)
+		return 1; // overflow
+	intermediate2 = intermediate1 * N;
+	if(intermediate1*N > MAX_N_FRQ || intermediate2 < MIN_N_FRQ)
+		return 1; // overflow
+	if(intermediate2/P > MAX_P_FRQ)
+		return 1; // overflow
+	intermediate3 = intermediate2/Q;	
+	if(intermediate3 > MAX_Q_FRQ)
+		return 1;
+	return 0;
+}
+
