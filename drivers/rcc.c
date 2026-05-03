@@ -715,11 +715,17 @@ uint32_t RCC_get_PLL_clkout(uint32_t* pfreq, uint32_t* qfreq){
 }
 
 /* Helper
+ *
  * Set the multiplier/divisor values for the main PLL.
+ * NOTE: Input factors are actual prescaler values not necessarily register values.
+ * 		 It happens to be the case for most of them to simply match.
+ *
  * Does no checking and returns nothing.
+ *
  */
 static void RCC_write_PLL_params(uint32_t M, uint32_t N, uint32_t P, uint32_t Q){
 	// Clear and then write M, N, P, Q respectively
+	P = (P/2)-1;	
 	RCC_PLLCFGR &= ~((0x3F << 0) | (0x1FF << 6) | (0x03 << 16) | (0x0F << 24));
 	RCC_PLLCFGR |= ((0x3F & M) | ((0x1FF & N) << 6) | ((0x03 & P)<< 16) | ((0x0F & Q) << 24));
 }
