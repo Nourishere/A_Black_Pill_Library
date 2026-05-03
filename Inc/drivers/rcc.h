@@ -83,7 +83,10 @@
 #define HSI_FRQ 16000000
 // HSE board crystal oscillator frequency (in Hz)
 #define HSE_FRQ 25000000
-
+// LSE frequency (in Hz)
+#define LSE_FRQ 32768
+// LSI frequency (in Hz)
+#define LSI_FRQ 32000
 // MCO pin (for clock out functionality)
 typedef enum{
 	MCO1,MCO2
