@@ -66,8 +66,10 @@
 #define MIN_R 2
 #define MAX_R 7
 
-// HSI frequency (in MHz)
-#define HSI_FRQ 16
+// HSI frequency (in Hz)
+#define HSI_FRQ 16000000
+// HSE board crystal oscillator frequency (in Hz)
+#define HSE_FRQ 25000000
 
 // MCO pin (for clock out functionality)
 typedef enum{
