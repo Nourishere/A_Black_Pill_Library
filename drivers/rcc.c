@@ -123,6 +123,67 @@ uint8_t RCC_set_clksrc(sysclk_src_t src){
 }
 
 /*
+ * Set the prescaler for a specific bus.
+ *
+ * NOTE: For the APBx buses, the input is the AHB bus clock.
+ *		 For the AHB bus, the input is the system clock.
+ *
+ * Return 0 upon success and 1 otherwise.
+ */
+uint8_t RCC_set_bus_prescaler(bus_t bus, uint32_t prescaler){
+	switch(prescaler){
+		case(1):
+			prescaler = 0;
+			break;
+		case(2):
+			prescaler = 8;
+			break;
+		case(4):
+			prescaler = 9;
+			break;
+		case(8):
+			prescaler = 10;
+			break;
+		case(16):
+			prescaler = 11;
+			break;
+		case(64):
+			prescaler = 12;
+			break;
+		case(128):
+			prescaler = 13;
+			break;
+		case(256):
+			prescaler = 14;
+			break;
+		case(512):
+			prescaler = 15;
+			break;
+		default:
+			return 1;
+	}
+
+	switch(bus){
+		case(AHB):
+			RCC_CFGR &= ~(0x0F << 4);	
+			RCC_CFGR |= ((prescaler & 0x0F) << 4);	
+			break;
+		case(APB1):
+			RCC_CFGR &= ~(0x07 << 10);	
+			RCC_CFGR |= ((prescaler & 0x07) << 10);	
+			break;
+		case(APB2):
+			RCC_CFGR &= ~(0x07 << 13);	
+			RCC_CFGR |= ((prescaler & 0x07) << 13);	
+			break;
+		default:
+			return 1;
+	}
+
+	return 0;
+}
+
+/*
  * Configure the main PLL.
  * Use enum values from `sysclk_src` (Inc/drivers/rcc.h)
  * NOTE: the PLL is turned off for configuration and then restored at the end.
@@ -407,6 +468,262 @@ uint8_t RCC_set_PLLI2S(uint32_t R, uint32_t N){
 	if(state)
 		RCC_CR |= (1 << 26);
 	return 0;	
+}
+
+/*
+ * Initialize the RTC clock
+ * NOTE: RTCCLK shouldn't exceed 100 MHz
+ *
+ * clk: input clock source (either LSE, LSI, or HSE)
+ * prescaler: divisor in case HSE is used as clock input
+ *
+ * Return 0 upon success, 1 otherwise
+ *
+ */
+uint8_t RCC_set_RTC(clk_t clk, uint32_t prescaler){
+	uint32_t freq;
+	switch(clk){
+		case(clk_LSE):
+			// Set the RCC source
+			RCC_BDCR &= ~(0x3 << 8);
+			RCC_BDCR |= (0x1 << 8);
+			break;
+		case(clk_LSI):
+			// Set the RCC source
+			RCC_BDCR &= ~(0x3 << 8);
+			RCC_BDCR |= (0x2 << 8);
+			break;
+		case(clk_HSE):
+			freq = HSE_FRQ;
+			if(prescaler < 2 || prescaler > 0x1FF)
+				return 1;
+			freq /= prescaler;
+			if(freq > MAX_RTC_FRQ)
+				return 1;
+			RCC_CFGR &= ~(0x1F << 16);
+			RCC_CFGR |= ((prescaler & 0x1F) << 16);
+
+			// Set the RCC source
+			RCC_BDCR &= ~(0x3 << 8);
+			RCC_BDCR |= (0x3 << 8);
+			break;
+		default:
+			return 1;
+	}
+	return 0;
+}
+
+/*
+ * Initialize the SSM (spread spectrum modulation) clock
+ * NOTE: This function should be called before the main PLL is enabled or after it's disabled
+ *
+ * TODO: parameter description
+ *
+ * Return 0 upon success, 1 otherwise
+ *
+ */
+uint8_t RCC_set_SSM(uint32_t modulation_period, uint32_t inc_step, uint32_t spread_select){
+	uint32_t state = ((RCC_CR >> 24) & 0x01)?1:0;
+	if(RCC_disable_PLL())
+		return 1;
+	if(spread_select > 1 || inc_step > 0x7FFF || modulation_period > 0x1FFF){
+		if(state){
+			if(RCC_enable_PLL())
+				return 1;
+		}
+		return 1;
+	}
+
+	RCC_SSCGR &= ~(1<<30);
+	RCC_SSCGR |= ((spread_select & 0x1) << 30);
+
+	RCC_SSCGR &= ~(0x7FFF << 13);
+	RCC_SSCGR |= ((inc_step & 0x7FFF) << 13);
+
+	RCC_SSCGR &= ~(0x1FFF);
+	RCC_SSCGR |= (modulation_period & 0x1FFF);
+
+	if(state){
+		 if(RCC_enable_PLL())
+			return 1;
+	}
+	return 0;
+}
+
+/*
+ * Set the clock prescaler for the timers using the APBx buses
+ * NOTE: If the bus prescaler (configured using `RCC_bus_prescaler()`) for the APBx buses is set to 1,
+ * 		 the clock used for these timers is just the HCLK (AHB bus clock)
+ *
+ * prescaler: either 4 or 2.
+ *
+ * NOTE: In case the APBx bus prescaler is 1, the timer clock is HCLK regardless of this setting.
+ *
+ * Return 0 upon success, 1 otherwise
+ *
+ */
+uint8_t RCC_set_TIM_prescaler(uint32_t prescaler){
+	if(prescaler == 2)
+		RCC_DCKCFGR &= ~(1 << 24);
+	else if(prescaler == 4)
+		RCC_DCKCFGR |= (1 << 24);
+	else
+		return 1;
+	return 0;	
+}
+
+/*
+ * Enable the RTC clock
+ */
+static inline void RCC_enable_RTC(void){
+	RCC_BDCR |= 1<<16;
+}
+
+/*
+ * Disable the RTC clock
+ */
+static inline void RCC_disable_RTC(void){
+	RCC_BDCR &= ~(1<<16);
+}
+
+/*
+ * Enable the main PLL and wait till it's locked
+ *
+ * Return 0 upon success, 1 otherwise
+ *
+ */
+uint8_t RCC_enable_PLL(void){
+	RCC_CR |= (1 << 24);
+	while(!((RCC_CR >> 25) & 0x1)){
+		// TODO: better add a countdown here
+	}
+
+	return 0;
+}
+
+/*
+ * Disable the main PLL and wait till it's unlocked
+ * NOTE: You can't disable the PLL if it's used as system clock
+ *
+ * Return 0 upon sucess, 1 otherwise
+ *
+ */
+uint8_t RCC_disable_PLL(void){
+	// Can't disable if PLL is system clock
+	// If the PLL is off, there is no reason to return false
+	uint32_t isiton = (RCC_CR >> 24) & 0x01;
+	if((((RCC_CFGR >> 2) & 0x3) == 0x2) && isiton)
+		return 1;
+	// No reason to clear a cleared bit!
+	if(isiton){
+		RCC_CR &= ~(1 << 24);
+		while((RCC_CR >> 25) & 0x1){
+			// TODO: better add a countdown here
+		}
+	}
+	return 0;
+}
+
+/*
+ * Enable the PLLI2S and wait till it's locked
+ *
+ * Return 0 upon success and 1 otherwise
+ *
+ */
+uint8_t RCC_enable_PLLI2S(void){
+	RCC_CR |= (1 << 26);
+	while(!((RCC_CR >> 27) & 0x1)){
+		// TODO: better add a countdown here
+	}
+
+	return 0;
+}
+
+/*
+ * Disable the PLLI2S and wait till it's unlocked
+ *
+ * Return 0 upon success and 1 otherwise
+ *
+ */
+uint8_t RCC_disable_PLLI2S(void){
+	RCC_CR &= ~(1 << 26);
+	while((RCC_CR >> 27) & 0x1){
+		// TODO: better add a countdown here
+	}
+
+	return 0;
+}
+
+/*
+ * Get the current system clock frequency.
+ *
+ * freq: A pointer to a uint32_t to store the frequency in.
+ *
+ * Return 0 upon success and 1 otherwise.
+ */
+uint32_t RCC_get_SYSCLK_freq(uint32_t* freq){
+	uint32_t M,N,P,Q;
+	uint32_t pfreq, qfreq;
+	if(freq == NULL)
+		return 1;
+	// read the current sysclock clock source
+	uint32_t temp = (RCC_CFGR >> 2) & 0x3;
+	switch(temp){
+		case(0): // HSI
+			*freq = HSI_FRQ;
+			return 0;
+		case(1): // HSE
+			*freq = HSE_FRQ;
+			return 0;
+		case(2): // PLL
+			if(RCC_get_PLL_params(&M,&N,&P,&Q))
+				return 1;
+			if(RCC_get_PLL_clkout(&pfreq, &qfreq))
+				return 1;
+			*freq = pfreq;
+			break;
+		default:
+			return 1;
+	}
+	return 0;
+}
+
+/*
+ * Get the output frequencies of the main PLL
+ * NOTE: A certain clock source can be used as input to the PLL but this doesn't
+ * 		 mean that it's stable. This is why there is a check on the XXXRDY bits.
+ *
+ * pfreq: The output frequency after the P divisor (goes to systemclk MUX)
+ * qfreq: The output frequency after the Q divisor (goes to the USB_OTG, SDIO, and RNG)
+ *
+ * Return 0 upon success and 1 otherwise
+ *
+ */
+uint32_t RCC_get_PLL_clkout(uint32_t* pfreq, uint32_t* qfreq){
+	sysclk_src_t src;
+	if(pfreq == NULL || qfreq == NULL)
+		return 1;
+	uint32_t M, N, P, Q;
+	uint32_t freq;
+	if(RCC_get_PLL_params(&M, &N, &P, &Q))
+		return 1;
+	// Read the PLL clock source and check the ready flag
+	if(((RCC_PLLCFGR >> 22) & 0x01) && ((RCC_CR >> 17) & 0x01)){
+		src = HSE;	
+		freq = HSE_FRQ;
+	}
+	else if(!((RCC_PLLCFGR >> 22) & 0x01) && ((RCC_CR >> 1) & 0x01)){
+		src = HSI;	
+		freq = HSI_FRQ;
+	}
+	else
+		return 1;
+	if(RCC_check_PLL_freq_flow(src, M, N, P, Q))
+		return 1;
+	uint32_t vco = (freq/M)*N;
+	*pfreq = vco/P;
+	*qfreq = vco/Q;
+	return 0;
 }
 
 /* Helper

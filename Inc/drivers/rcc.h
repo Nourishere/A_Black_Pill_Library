@@ -109,11 +109,24 @@ typedef struct {
 uint8_t RCC_set_clksrc(sysclk_src_t src);
 uint8_t RCC_set_PLL(sysclk_src_t src, uint32_t M, uint32_t N, uint32_t P, uint32_t Q);
 uint8_t RCC_set_PLLI2S(uint32_t R, uint32_t N);
+uint8_t RCC_set_RTC(clk_t clk, uint32_t prescaler);
+uint8_t RCC_set_SSM(uint32_t modulation_period, uint32_t inc_step, uint32_t spread_select);
+uint8_t RCC_set_bus_prescaler(bus_t bus, uint32_t prescaler);
+uint8_t RCC_set_TIM_prescaler(uint32_t prescaler);
+uint8_t RCC_enable_PLL(void);
+uint8_t RCC_disable_PLL(void);
+uint8_t RCC_enable_PLLI2S(void);
+uint8_t RCC_disable_PLLI2S(void);
+static inline void RCC_enable_RTC(void);
+static inline void RCC_disable_RTC(void);
 uint8_t RCC_clockout(clk_t clk, MCO_t mco, uint32_t prescaler);
 uint8_t RCC_reset_peripheral(peripheral_t peripheral);
 uint8_t RCC_enable_peripheral(peripheral_t peripheral);
 uint8_t RCC_enable_LP_peripheral(peripheral_t peripheral);
+uint8_t RCC_enable_SSM(void);
 uint8_t RCC_disable_LP_peripheral(peripheral_t peripheral);
 uint8_t RCC_disable_peripheral(peripheral_t peripheral);
+uint32_t RCC_get_SYSCLK_freq(uint32_t* freq);
+uint32_t RCC_get_PLL_clkout(uint32_t* pfreq, uint32_t* qfreq);
 
 #endif // RCC_H
