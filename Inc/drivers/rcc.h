@@ -63,6 +63,8 @@
 #define MAX_N 432
 #define MIN_N 192
 #define MAX_P 84
+#define MIN_R 2
+#define MAX_R 7
 
 // HSI frequency (in MHz)
 #define HSI_FRQ 16
