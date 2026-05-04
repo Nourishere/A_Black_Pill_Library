@@ -66,7 +66,7 @@ static const peripheral_reg_t peripheral_lookup_table[] = {
 
 /*
  * Set the clock source for the system clock (SYSCLOCK)
- * NOTE: if you wish to use the PLL as the SYSCLOCK, it is adviced
+ * NOTE: if you wish to use the PLL as the SYSCLOCK, it is advised
  * 		 that you configure it using `RCC_set_PLL()`
  *
  * src: SYSCLK main input. Use enum values from `sysclk_src` (Inc/drivers/rcc.h)
@@ -386,7 +386,7 @@ uint8_t RCC_enable_LP_peripheral(peripheral_t peripheral){
 }
 
 /*
- * Disable a peripheral when the deivce is sleep mode (check `enum peripheral_t`)
+ * Disable a peripheral when the device is sleep mode (check `enum peripheral_t`)
  *
  * return 0 upon success and 1 otherwise
  *
@@ -593,7 +593,7 @@ uint8_t RCC_enable_PLL(void){
  * Disable the main PLL and wait till it's unlocked
  * NOTE: You can't disable the PLL if it's used as system clock
  *
- * Return 0 upon sucess, 1 otherwise
+ * Return 0 upon success, 1 otherwise
  *
  */
 uint8_t RCC_disable_PLL(void){
