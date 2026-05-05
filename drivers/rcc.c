@@ -73,7 +73,7 @@ static const peripheral_reg_t peripheral_lookup_table[] = {
  *
  * Return 0 upon success and 1 otherwise.
  */
-uint8_t RCC_set_clksrc(sysclk_src_t src){
+uint8_t RCC_set_sysclk_src(sysclk_src_t src){
 	switch(src){
 		case(HSE):
 			RCC_CR |= (1 << 16);

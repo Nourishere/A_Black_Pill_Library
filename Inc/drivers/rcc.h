@@ -122,7 +122,7 @@ typedef struct {
     uint32_t bit_position;
 }peripheral_reg_t;
 
-uint8_t RCC_set_clksrc(sysclk_src_t src);
+uint8_t RCC_set_sysclk_src(sysclk_src_t src);
 uint8_t RCC_set_PLL(sysclk_src_t src, uint32_t M, uint32_t N, uint32_t P, uint32_t Q);
 uint8_t RCC_set_PLLI2S(uint32_t R, uint32_t N);
 uint8_t RCC_set_RTC(clk_t clk, uint32_t prescaler);
