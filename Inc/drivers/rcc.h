@@ -88,45 +88,46 @@
 // LSI frequency (in Hz)
 #define LSI_FRQ 32000
 // MCO pin (for clock out functionality)
-typedef enum{
-	MCO1,MCO2
-}MCO_t;
+typedef enum {
+	MCO1, MCO2
+} MCO_t;
 
 // All clocks
-typedef enum{
-	clk_LSI,clk_LSE,clk_HSI,clk_HSE
-	,clk_PLL,clk_PLLI2S,clk_SYSCLK
-}clk_t;
+typedef enum {
+	clk_LSI, clk_LSE, clk_HSI, clk_HSE, clk_PLL, clk_PLLI2S, clk_SYSCLK
+} clk_t;
 
 // System clock options
-typedef enum{
-	HSE,HSI,PLL
-}sysclk_src_t;
+typedef enum {
+	HSE, HSI, PLL
+} sysclk_src_t;
 
 // Bus options
-typedef enum{
-	AHB,APB1,APB2
-}bus_t;
+typedef enum {
+	AHB, APB1, APB2
+} bus_t;
 
 // Peripherals
-typedef enum{
-	GPIOA,GPIOB,GPIOC,GPIOD,GPIOE,GPIOH,CRC,OTGFS,
-	TIM1,TIM2,TIM3,TIM4,TIM5,TIM9,TIM10,TIM11,
-	WWDG,SPI2,SPI3,USART1,USART2,USART6,I2C1,I2C2,
-	SDIO,SPI1,SPI4,DMA1,DMA2,PWR,SYSCFG,I2C3,ADC1
-}peripheral_t;
+typedef enum {
+	GPIOA, GPIOB, GPIOC, GPIOD, GPIOE, GPIOH, CRC, OTGFS,
+	TIM1, TIM2, TIM3, TIM4, TIM5, TIM9, TIM10, TIM11,
+	WWDG, SPI2, SPI3, USART1, USART2, USART6, I2C1, I2C2,
+	SDIO, SPI1, SPI4, DMA1, DMA2, PWR, SYSCFG, I2C3, ADC1
+} peripheral_t;
 
 // Peripheral register lookup table
 typedef struct {
-    volatile uint32_t *enr;
-    uint32_t bit_position;
-}peripheral_reg_t;
+	volatile uint32_t *enr;
+	uint32_t bit_position;
+} peripheral_reg_t;
 
 uint8_t RCC_set_sysclk_src(sysclk_src_t src);
-uint8_t RCC_set_PLL(sysclk_src_t src, uint32_t M, uint32_t N, uint32_t P, uint32_t Q);
+uint8_t RCC_set_PLL(sysclk_src_t src, uint32_t M, uint32_t N, uint32_t P,
+		    uint32_t Q);
 uint8_t RCC_set_PLLI2S(uint32_t R, uint32_t N);
 uint8_t RCC_set_RTC(clk_t clk, uint32_t prescaler);
-uint8_t RCC_set_SSM(uint32_t modulation_period, uint32_t inc_step, uint32_t spread_select);
+uint8_t RCC_set_SSM(uint32_t modulation_period, uint32_t inc_step,
+		    uint32_t spread_select);
 uint8_t RCC_set_bus_prescaler(bus_t bus, uint32_t prescaler);
 uint8_t RCC_set_TIM_prescaler(uint32_t prescaler);
 uint8_t RCC_enable_PLL(void);
@@ -142,7 +143,7 @@ uint8_t RCC_enable_LP_peripheral(peripheral_t peripheral);
 uint8_t RCC_enable_SSM(void);
 uint8_t RCC_disable_LP_peripheral(peripheral_t peripheral);
 uint8_t RCC_disable_peripheral(peripheral_t peripheral);
-uint32_t RCC_get_SYSCLK_freq(uint32_t* freq);
-uint32_t RCC_get_PLL_clkout(uint32_t* pfreq, uint32_t* qfreq);
+uint32_t RCC_get_SYSCLK_freq(uint32_t * freq);
+uint32_t RCC_get_PLL_clkout(uint32_t * pfreq, uint32_t * qfreq);
 
-#endif // RCC_H
+#endif				// RCC_H
