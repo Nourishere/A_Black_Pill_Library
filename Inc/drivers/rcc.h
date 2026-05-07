@@ -121,29 +121,158 @@ typedef struct {
 	uint32_t bit_position;
 } peripheral_reg_t;
 
+/*
+ * Set the clock source for the system clock (SYSCLOCK)
+ * Use enum values from `sysclk_src` (Inc/drivers/rcc.h)
+ * NOTE: if you wish to use the PLL as the SYSCLOCK, it is advised
+ * 		 that you configure it using `RCC_set_PLL()`
+ */
 uint8_t RCC_set_sysclk_src(sysclk_src_t src);
+
+/* Configure the main PLL.
+ * Use enum values from `sysclk_src` (Inc/drivers/rcc.h)
+ *
+ * NOTE: it's an error if you call this function when the PLL is used as the system clock
+ * NOTE: the PLL is turned off for configuration and then restored at the end.
+ * NOTE: for HSE clock, you need to input the correct parameters to insure that
+ * 		 the output clock frequency is in the valid range.
+ *
+ * src: clock input to the PLL (either HSE or HSI)
+ * M: HSI/HSE clock input division factor.
+ * N: VCO output multiplier.
+ * P: SYSCLK output division factor.
+ * Q: SDIO, RNG, and USB output division factor.
+ */
 uint8_t RCC_set_PLL(sysclk_src_t src, uint32_t M, uint32_t N, uint32_t P,
 		    uint32_t Q);
+
+/*
+ * Initializes the PLLI2S
+ * NOTE: The main PLL controls the input clock frequency source and the M multiplier
+ */
 uint8_t RCC_set_PLLI2S(uint32_t R, uint32_t N);
+
+/*
+ * Initialize the RTC clock
+ * NOTE: RTCCLK shouldn't exceed 100 MHz
+ *
+ * clk: input clock source (either LSE, LSI, or HSE)
+ * prescaler: divisor in case HSE is used as clock input
+ */
 uint8_t RCC_set_RTC(clk_t clk, uint32_t prescaler);
+
+/*
+ * Initialize the SSM (spread spectrum modulation) clock
+ * NOTE: This function should be called before the main PLL is enabled or after it's disabled
+ */
 uint8_t RCC_set_SSM(uint32_t modulation_period, uint32_t inc_step,
 		    uint32_t spread_select);
+
+/*
+ * Set the prescaler for a specific bus.
+ *
+ * NOTE: For the APBx buses, the input is the AHB bus clock.
+ *		 For the AHB bus, the input is the system clock.
+ */
 uint8_t RCC_set_bus_prescaler(bus_t bus, uint32_t prescaler);
+
+/*
+ * Set the clock prescaler for the timers using the APBx buses
+ * NOTE: If the bus prescaler (configured using `RCC_bus_prescaler()`) for the APBx buses is set to 1,
+ * 		 the clock used for these timers is just the HCLK (AHB bus clock)
+ *
+ * prescaler: either 4 or 2.
+ *
+ * NOTE: In case the APBx bus prescaler is 1, the timer clock is HCLK regardless of this setting.
+ */
 uint8_t RCC_set_TIM_prescaler(uint32_t prescaler);
+
+/*
+ * Enable the main PLL and wait till it's locked
+ */
 uint8_t RCC_enable_PLL(void);
+
+/*
+ * Disable the main PLL and wait till it's unlocked
+ * NOTE: You can't disable the PLL if it's used as system clock
+ */
 uint8_t RCC_disable_PLL(void);
+
+/*
+ * Enable the PLLI2S and wait till it's locked
+ */
 uint8_t RCC_enable_PLLI2S(void);
+
+/*
+ * Disable the PLLI2S and wait till it's unlocked
+ */
 uint8_t RCC_disable_PLLI2S(void);
+
+/*
+ * Enable the RTC clock
+ */
 static inline void RCC_enable_RTC(void);
+
+/*
+ * Disable the RTC clock
+ */
 static inline void RCC_disable_RTC(void);
+
+/*
+ * Set and activate an output clock on one of the MCO pins
+ * NOTE: Clock selection may generate glitches on MCOx.
+ * 		 It is highly recommended to call this function only after
+ * 		 reset before enabling the external oscillators and the PLLs.
+ *
+ * clk: output clock on the MCOx pin
+ * mco: output pin (See `enum MCO_t`)
+ * prescaler: division factor
+ * 			  legal values: 1(pass),2,3,4,5
+ */
 uint8_t RCC_clockout(clk_t clk, MCO_t mco, uint32_t prescaler);
+
+/*
+ * Reset a peripheral (check `enum peripheral_t`)
+ * works by setting and clearing the reset bit
+ */
 uint8_t RCC_reset_peripheral(peripheral_t peripheral);
+
+/*
+ * Enable a peripheral (check `enum peripheral_t`)
+ */
 uint8_t RCC_enable_peripheral(peripheral_t peripheral);
+
+/*
+ * Enable a peripheral when the deivce is sleep mode (check `enum peripheral_t`)
+ */
 uint8_t RCC_enable_LP_peripheral(peripheral_t peripheral);
-uint8_t RCC_enable_SSM(void);
+
+/*
+ * Disable a peripheral when the device is sleep mode (check `enum peripheral_t`)
+ */
 uint8_t RCC_disable_LP_peripheral(peripheral_t peripheral);
+
+/*
+ * Disable a peripheral (check `enum peripheral_t`)
+ */
 uint8_t RCC_disable_peripheral(peripheral_t peripheral);
+
+/*
+ * Get the current system clock frequency.
+ *
+ * freq: A pointer to a uint32_t to store the frequency in.
+ */
 uint32_t RCC_get_SYSCLK_freq(uint32_t * freq);
+
+/*
+ * Get the output frequencies of the main PLL
+ * NOTE: A certain clock source can be used as input to the PLL but this doesn't
+ * 		 mean that it's stable. This is why there is a check on the XXXRDY bits.
+ *
+ * Both parameters are pointers to store the return.
+ * pfreq: The output frequency after the P divisor (goes to systemclk MUX)
+ * qfreq: The output frequency after the Q divisor (goes to the USB_OTG, SDIO, and RNG)
+ */
 uint32_t RCC_get_PLL_clkout(uint32_t * pfreq, uint32_t * qfreq);
 
 #endif				// RCC_H
