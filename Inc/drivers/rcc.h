@@ -248,6 +248,18 @@ uint8_t RCC_enable_peripheral(peripheral_t peripheral);
 uint8_t RCC_enable_LP_peripheral(peripheral_t peripheral);
 
 /*
+ * Enable the SSM module.
+ * NOTE: This can only be done before the PLL is enabled (before setting the PLLON bit).
+ */
+uint8_t RCC_enable_SSM(void);
+
+/*
+ * Disable the SSM module.
+ * NOTE: This can only be done after the PLL is disabled (after clearing the PLLON bit).
+ */
+uint8_t RCC_disable_SSM(void);
+
+/*
  * Disable a peripheral when the device is sleep mode (check `enum peripheral_t`)
  */
 uint8_t RCC_disable_LP_peripheral(peripheral_t peripheral);

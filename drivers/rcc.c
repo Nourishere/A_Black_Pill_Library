@@ -411,6 +411,55 @@ uint8_t RCC_disable_LP_peripheral(peripheral_t peripheral)
 }
 
 /*
+ * Enable the SSM module.
+ * NOTE: This can only be done before the PLL is enabled (before setting the PLLON bit).
+ * NOTE: The fuction will attempt to disable the PLL in case it was enabled. Only that 
+ * 		 is an error to disable the PLL if it's used as system clock.
+ *
+ * Return 0 upon success and 1 otherwise
+ *
+ */
+uint8_t RCC_enable_SSM(void)
+{
+	uint32_t state = 0;
+	if((RCC_CR >> 24) & 0x01){
+		if(RCC_disable_PLL())
+			return 1;
+		state = 1;
+	}
+
+	RCC_SSCGR |= (1 << 31);
+
+	if(state)
+		RCC_enable_PLL();
+	return 0;
+}
+
+/*
+ * Disable the SSM module.
+ * NOTE: This can only be done after the PLL is disabled (after clearing the PLLON bit).
+ * NOTE: The fuction will attempt to disable the PLL in case it was enabled. Only that 
+ * 		 is an error to disable the PLL if it's used as system clock.
+ *
+ * Return 0 upon success and 1 otherwise.
+ */
+uint8_t RCC_disable_SSM(void)
+{
+	uint32_t state = 0;
+	if((RCC_CR >> 24) & 0x01){
+		if(RCC_disable_PLL())
+			return 1;
+		state = 1;
+	}
+
+	RCC_SSCGR &= ~(1 << 31);
+
+	if(state)
+		RCC_enable_PLL();
+	return 0;
+}
+
+/*
  * Initializes the PLLI2S
  * NOTE: The main PLL controls the input clock frequency source and the M multiplier
  *
