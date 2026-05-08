@@ -24,7 +24,7 @@ DIRS := $(sort $(dir $(OBJ)))
 CFLAGS_COMMON := \
   -mcpu=cortex-m4 \
   -std=gnu11 \
-  -DSTM32 -DSTM32F4 -DSTM32F411CEUx \
+  -DSTM32 -DSTM32F4 -DSTM32F401RCTx \
   -IInc \
   -ffunction-sections \
   -fdata-sections \
