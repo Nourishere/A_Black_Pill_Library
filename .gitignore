@@ -9,3 +9,5 @@ build/
 .settings/
 .project
 *.swp
+*.c~
+*.h~
