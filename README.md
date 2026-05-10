@@ -6,14 +6,19 @@
 ```
 .
 ├── README.md
+├── LICENSE 
 ├── Makefile
 ├──	core/ (Cortex M specific)
+│   ├── nvic.c
+|   └── ...
 ├── drivers/
 │   ├── gpio.c
 |   └── ...
 |
 └──	Inc/
     ├── core/
+	|	 ├── nvic.h
+	|    └── ...
     └── drivers/
 		 ├── gpio.h
 	     └── ...
