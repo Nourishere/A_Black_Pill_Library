@@ -4,7 +4,7 @@
  * Author: Nour Nawar <nournawar5@gmail.com>
  */
 
-#include <../Inc/core/nvic.h>
+#include <core/nvic.h>
 
 
 /*

@@ -6,7 +6,7 @@
 
 #include <stdint.h>
 #include <limits.h>
-#include <../Inc/drivers/rcc.h>
+#include <drivers/rcc.h>
 
 static void RCC_write_PLL_params(uint32_t M, uint32_t N, uint32_t P,
 				 uint32_t Q);
