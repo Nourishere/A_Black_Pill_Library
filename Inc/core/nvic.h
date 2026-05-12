@@ -100,4 +100,19 @@ uint8_t NVIC_get_priority (uint32_t IRQn);
  */
 void NVIC_trigger_software_interrupt(uint32_t IRQn);
 
+/*
+ * Disable all IRQ lines
+ */
+void NVIC_disable_all(void);
+
+/*
+ * Clear all the pending states
+ */
+void NVIC_clear_all_pending(void);
+
+/*
+ * Reset all priorities (clear them)
+ */
+void NVIC_reset_all_priorities(void);
+
 #endif // NVIC_H
