@@ -16,16 +16,16 @@ static uint8_t interrupt_check_IRQn(IRQn_t line);
  * - Clearning priority and pending states.
  *
  * NOTE: Clear interrupt masking after calling this function to 
- * 			ensure interrupt are unmasked.
+ * 		ensure interrupt are unmasked.
  *
  * NOTE: This function gives you the possibility to either use
- * 			or ignore sub priorities. It should be called once
- * 			at initialization time.
+ * 		or ignore sub priorities. It should be called once
+ * 		at initialization time.
  *
  * groupbits: The number of preempt priority bits.
  *
  * NOTE: if you wish NOT to use any sub priority, just 
- * 			set groupbits to INTERRUPT_PRIO_BITS.
+ * 		set groupbits to INTERRUPT_PRIO_BITS.
  *
  * Return 0 upon success and 1 otherwise
  *
@@ -33,7 +33,7 @@ static uint8_t interrupt_check_IRQn(IRQn_t line);
 uint8_t interrupt_init(uint8_t groupbits)
 {
 	// Set priority grouping
-	if(groupbits < 1 || groupbits > INTERRUPT_PRIO_BITS)
+	if (groupbits < 1 || groupbits > INTERRUPT_PRIO_BITS)
 		return 1;
 
 	NVIC_disable_all();
@@ -56,7 +56,7 @@ uint8_t interrupt_init(uint8_t groupbits)
  */
 uint8_t interrupt_set_priority(IRQn_t line, uint8_t priority)
 {
-	if(interrupt_check_IRQn(line))
+	if (interrupt_check_IRQn(line))
 		return 1;
 	NVIC_set_priority(line, priority);
 
@@ -71,9 +71,9 @@ uint8_t interrupt_set_priority(IRQn_t line, uint8_t priority)
  * Return 0 upon success and 1 otherwise
  *
  */
-uint8_t interrupt_get_priority(IRQn_t line, uint8_t * priority)
+uint8_t interrupt_get_priority(IRQn_t line, uint8_t *priority)
 {
-	if(interrupt_check_IRQn(line))
+	if (interrupt_check_IRQn(line))
 		return 1;
 	*priority = NVIC_get_priority(line);
 
@@ -88,7 +88,7 @@ uint8_t interrupt_get_priority(IRQn_t line, uint8_t * priority)
  */
 uint8_t interrupt_set_pending(IRQn_t line)
 {
-	if(interrupt_check_IRQn(line))
+	if (interrupt_check_IRQn(line))
 		return 1;
 	NVIC_set_pending(line);
 
@@ -103,7 +103,7 @@ uint8_t interrupt_set_pending(IRQn_t line)
  */
 uint8_t interrupt_clear_pending(IRQn_t line)
 {
-	if(interrupt_check_IRQn(line))
+	if (interrupt_check_IRQn(line))
 		return 1;
 	NVIC_clear_pending(line);
 
@@ -118,7 +118,7 @@ uint8_t interrupt_clear_pending(IRQn_t line)
  */
 uint8_t interrupt_is_pending(IRQn_t line)
 {
-	if(interrupt_check_IRQn(line))
+	if (interrupt_check_IRQn(line))
 		return 1;
 
 	return NVIC_is_pending(line);
@@ -132,11 +132,12 @@ uint8_t interrupt_is_pending(IRQn_t line)
  */
 uint8_t interrupt_is_active(IRQn_t line)
 {
-	if(interrupt_check_IRQn(line))
+	if (interrupt_check_IRQn(line))
 		return 1;
 
 	return NVIC_is_active(line);
 }
+
 /*
  * Enable an IRQ line
  *
@@ -145,7 +146,7 @@ uint8_t interrupt_is_active(IRQn_t line)
  */
 uint8_t interrupt_enable_IRQ(IRQn_t line)
 {
-	if(interrupt_check_IRQn(line))
+	if (interrupt_check_IRQn(line))
 		return 1;
 	NVIC_enable_IRQ(line);
 
@@ -160,13 +161,12 @@ uint8_t interrupt_enable_IRQ(IRQn_t line)
  */
 uint8_t interrupt_disable_IRQ(IRQn_t line)
 {
-	if(interrupt_check_IRQn(line))
+	if (interrupt_check_IRQn(line))
 		return 1;
 	NVIC_disable_IRQ(line);
 
 	return 0;
 }
-
 
 /* Helper
  * Check if the IRQn_t input is valid
@@ -176,11 +176,12 @@ uint8_t interrupt_disable_IRQ(IRQn_t line)
  */
 static uint8_t interrupt_check_IRQn(IRQn_t line)
 {
-	if(line > PI4)
+	if (line > PI4)
 		return 1;
-	if((line > 18 && line < 23) || (line == 39) || (line > 42 && line < 47)
-			|| (line == 48) || (line > 51 && line < 56) || (line > 60 && line <67)
-			|| (line > 73 && line < 81) || (line > 81 && line < 84))
-		return 1;   
+	if ((line > 18 && line < 23) || (line == 39) || (line > 42 && line < 47)
+	    || (line == 48) || (line > 51 && line < 56) || (line > 60
+							    && line < 67)
+	    || (line > 73 && line < 81) || (line > 81 && line < 84))
+		return 1;
 	return 0;
 }
