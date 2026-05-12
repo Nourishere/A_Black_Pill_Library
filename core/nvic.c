@@ -12,7 +12,7 @@
  *
  * Return nothing
  */
-void NVIC_enableIRQ (uint32_t IRQn) 
+void NVIC_enable_IRQ (uint32_t IRQn) 
 {
 	NVIC->ISER[IRQn/32] |= (1U << (IRQn%32));
 }
@@ -22,7 +22,7 @@ void NVIC_enableIRQ (uint32_t IRQn)
  *
  * Return nothing
  */
-void NVIC_disableIRQ (uint32_t IRQn)
+void NVIC_disable_IRQ (uint32_t IRQn)
 {
 	NVIC->ICER[IRQn/32] |= (1U << (IRQn%32));
 }
@@ -32,7 +32,7 @@ void NVIC_disableIRQ (uint32_t IRQn)
  *
  * Return nothing
  */
-void NVIC_setPending (uint32_t IRQn)
+void NVIC_set_pending (uint32_t IRQn)
 {
 	NVIC->ISPR[IRQn/32] |= (1U << (IRQn%32));
 }
@@ -45,7 +45,7 @@ void NVIC_setPending (uint32_t IRQn)
  *
  * Return nothing
  */
-void NVIC_setPriority (uint32_t IRQn, uint32_t priority)
+void NVIC_set_priority (uint32_t IRQn, uint32_t priority)
 {
 	NVIC->IPR[IRQn] = (uint8_t) priority;
 }
@@ -55,7 +55,7 @@ void NVIC_setPriority (uint32_t IRQn, uint32_t priority)
  *
  * Return nothing
  */
-void NVIC_clearPending (uint32_t IRQn)
+void NVIC_clear_pending (uint32_t IRQn)
 {
 	NVIC->ICPR[IRQn/32] |= (1U << (IRQn % 32));
 }
@@ -65,7 +65,7 @@ void NVIC_clearPending (uint32_t IRQn)
  *
  * Return 1 if the IRQ line is pending and 0 otherwise
  */
-uint8_t NVIC_isPending (uint32_t IRQn)
+uint8_t NVIC_is_pending (uint32_t IRQn)
 {
 	return (NVIC->ISPR[IRQn/32] >> (IRQn % 32)) & 0x01U;
 }
@@ -75,7 +75,7 @@ uint8_t NVIC_isPending (uint32_t IRQn)
  *
  * Return 1 if the IRQ line is active and 0 otherwise 
  */
-uint8_t NVIC_isActive (uint32_t IRQn)
+uint8_t NVIC_is_active (uint32_t IRQn)
 {
 	return (NVIC->IABR[IRQn/32] >> (IRQn % 32)) & 0x01U;
 }
@@ -88,7 +88,7 @@ uint8_t NVIC_isActive (uint32_t IRQn)
  *
  * Return the priority level of the IRQ line
  */
-uint8_t NVIC_getPriority (uint32_t IRQn)
+uint8_t NVIC_get_priority (uint32_t IRQn)
 {
 	return NVIC->IPR[IRQn];
 }
@@ -98,7 +98,7 @@ uint8_t NVIC_getPriority (uint32_t IRQn)
  *
  * Return nothing
  */
-void NVIC_triggerSoftwareInterrupt(uint32_t IRQn)
+void NVIC_trigger_software_interrupt(uint32_t IRQn)
 {
 	NVIC->STIR[1] = IRQn;
 }
