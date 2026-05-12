@@ -52,7 +52,7 @@ void SCB_set_priority_grouping(uint8_t prigroup);
 /*
  * Read the AIRCR and get the priority grouping
  *
- * Return is the least 3 bits in the uint32_t 
+ * Return the priority grouping
  */
 uint8_t SCB_get_priority_grouping(void);
 
