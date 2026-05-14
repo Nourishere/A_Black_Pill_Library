@@ -28,7 +28,7 @@ CFLAGS_COMMON := \
   -IInc \
   -ffunction-sections \
   -fdata-sections \
-  -Wall -Wextra \
+  -Wall -Wextra -Wfatal-errors\
   -v \
   -mfpu=fpv4-sp-d16 \
   -mfloat-abi=hard \
