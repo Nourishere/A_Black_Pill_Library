@@ -49,14 +49,14 @@ uint8_t interrupt_init(uint8_t groupbits)
  *
  * NOTE: The interrupt priority you give is the full 8-bit priority
  *
- * priority: The priority you wish to set 
+ * priority: The raw encoded priority you wish to set 
  *
  * Return 0 upon success and 1 otherwise
  *
  */
 uint8_t interrupt_set_priority(IRQn_t line, uint8_t priority)
 {
-	if (interrupt_check_IRQn(line))
+	if (interrupt_check_IRQn(line) || priority > 0x0FU)
 		return 1;
 	NVIC_set_priority(line, priority);
 
