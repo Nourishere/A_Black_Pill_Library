@@ -17,43 +17,34 @@
 #define INTERRUPT_PRIO_BITS 4
 
 /*
- * All IRQ lines on the device
+ * All IRQ lines on the device with aliases
  */
 typedef enum {
 	WWDG,
-	EXTI16 = 1, PVD = 1,
-	EXTI21 = 2, TAMP_STAMP = 2,
-	EXTI22 = 3, RTC_WKUP = 3,
-	FLASH, RCC, EXTI0,
-	EXTI1, EXTI2, EXTI3, EXTI4,
-	DMA1_Stream0, DMA1_Stream1,
-	DMA1_Stream2, DMA1_Stream3, DMA1_Stream4,
-	DMA1_Stream5, DMA1_Stream6, ADC,
+	EXTI16 = 1, PVD = 1, EXTI21 = 2, TAMP_STAMP = 2, EXTI22 = 3,
+	RTC_WKUP = 3, FLASH, RCC, EXTI0, EXTI1, EXTI2, EXTI3, EXTI4,
+	DMA1_Stream0, DMA1_Stream1, DMA1_Stream2, DMA1_Stream3,
+	DMA1_Stream4, DMA1_Stream5, DMA1_Stream6, ADC,
 	// Reserved IRQ lines here
-	EXTI9_5 = 23,
-	TIM1_BRK_TIM9, TIM1_UP_TIM10,
-	TIM1_TRG_COM = 26, TIM11 = 26,
-	TIM1_CC, TIM2, TIM3,
-	TIM4, I2C1_EV, I2C1_ER,
-	I2C2_EV, I2C2_ER, SPI1,
-	SPI2, USART1, USART2,
+	EXTI9_5 = 23, EXTI9 = 23, EXTI8 = 23, EXTI7 = 23, EXTI6 = 23, EXTI5 =
+	    23,
+	TIM1_BRK_TIM9, TIM1_UP_TIM10, TIM1_TRG_COM = 26, TIM11 = 26, TIM1_CC,
+	TIM2, TIM3, TIM4, I2C1_EV, I2C1_ER, I2C2_EV, I2C2_ER, SPI1, SPI2,
+	USART1, USART2,
 	// Reserved IRQ lines here
-	EXTI15_10 = 40,
-	EXTI17 = 41, RTC_Alarm = 41,
-	EXTI18 = 42, OTG_FS_WKUP = 42,
+	EXTI15_10 = 40, EXTI15 = 40, EXTI14 = 40, EXTI13 = 40, EXTI12 = 40,
+	EXTI11 = 40, EXTI10 = 40, EXTI17 = 41, RTC_Alarm = 41, EXTI18 = 42,
+	OTG_FS_WKUP = 42,
 	// Reserved IRQ lines here
 	DMA1_Stream7 = 47,
 	// Reserved IRQ line here
-	SDIO = 49,
-	TIM5, SPI3,
+	SDIO = 49, TIM5, SPI3,
 	// Reserved IRQ line here
-	DMA2_Stream0 = 56,
-	DMA2_Stream1, DMA2_Stream2, DMA2_Stream3,
+	DMA2_Stream0 = 56, DMA2_Stream1, DMA2_Stream2, DMA2_Stream3,
 	DMA2_Stream4,
 	// Reserved IRQ line here
-	OTG_FS = 67,
-	DMA2_Stream5, DMA2_Stream6, DMA2_Stream7,
-	USART6, I2C3_EV, I2C3_ER,
+	OTG_FS = 67, DMA2_Stream5, DMA2_Stream6, DMA2_Stream7, USART6,
+	I2C3_EV, I2C3_ER,
 	// Reserved IRQ line here
 	FPU = 81,
 	// Reserved IRQ line here
