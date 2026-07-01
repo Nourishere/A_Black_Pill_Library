@@ -6,8 +6,11 @@ debug:
 release:
 	@$(MAKE) --no-print-directory BUILD=release build-one
 
+indent:
+	indent -linux $(SRC) $(H)
+
 clean:
-	rm -rf build/
+	rm -rf build/ $(BAK)
 
 LIB_NAME := STM32F4
 BUILD ?= debug
@@ -18,6 +21,8 @@ CC := $(TOOL_DIR)/arm-none-eabi-gcc
 AR := $(TOOL_DIR)/arm-none-eabi-ar
 
 SRC := $(wildcard drivers/*.c core/*.c)
+H := $(wildcard Inc/drivers/*.h Inc/core/*.h)
+BAK := $(wildcard Inc/drivers/*.h~ Inc/core/*.h~ drivers/*.c~ core/*.c~)
 OBJ := $(patsubst %.c,$(BUILD_DIR)/%.o,$(SRC))
 DIRS := $(sort $(dir $(OBJ)))
 
