@@ -422,15 +422,15 @@ uint8_t RCC_disable_LP_peripheral(peripheral_t peripheral)
 uint8_t RCC_enable_SSM(void)
 {
 	uint32_t state = 0;
-	if((RCC_CR >> 24) & 0x01){
-		if(RCC_disable_PLL())
+	if ((RCC_CR >> 24) & 0x01) {
+		if (RCC_disable_PLL())
 			return 1;
 		state = 1;
 	}
 
 	RCC_SSCGR |= (1 << 31);
 
-	if(state)
+	if (state)
 		RCC_enable_PLL();
 	return 0;
 }
@@ -446,15 +446,15 @@ uint8_t RCC_enable_SSM(void)
 uint8_t RCC_disable_SSM(void)
 {
 	uint32_t state = 0;
-	if((RCC_CR >> 24) & 0x01){
-		if(RCC_disable_PLL())
+	if ((RCC_CR >> 24) & 0x01) {
+		if (RCC_disable_PLL())
 			return 1;
 		state = 1;
 	}
 
 	RCC_SSCGR &= ~(1 << 31);
 
-	if(state)
+	if (state)
 		RCC_enable_PLL();
 	return 0;
 }

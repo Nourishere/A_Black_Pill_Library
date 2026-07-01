@@ -13,17 +13,17 @@
 #define NVIC_BASE 0xE000E100
 
 typedef struct {
-	volatile uint32_t ISER[8]; // Interrupt Set Enable Register
+	volatile uint32_t ISER[8];	// Interrupt Set Enable Register
 	uint32_t reserved1[24];
-	volatile uint32_t ICER[8]; // Interrupt Clear Enable Register
-	volatile uint32_t ISPR[8]; // Interrupt Set Pending Register
+	volatile uint32_t ICER[8];	// Interrupt Clear Enable Register
+	volatile uint32_t ISPR[8];	// Interrupt Set Pending Register
 	uint32_t reserved2[24];
-	volatile uint32_t ICPR[8]; // Interrupt Clear Pending Register
-	volatile uint32_t IABR[8]; // Interrpt Active Bit Register 
+	volatile uint32_t ICPR[8];	// Interrupt Clear Pending Register
+	volatile uint32_t IABR[8];	// Interrpt Active Bit Register 
 	uint32_t reserved3[56];
-	volatile uint8_t IPR[240]; // Interrupt Priority Register 
+	volatile uint8_t IPR[240];	// Interrupt Priority Register 
 	uint32_t reserved4[644];
-	volatile uint32_t STIR[1]; // Software Trigger Interrupt Register
+	volatile uint32_t STIR[1];	// Software Trigger Interrupt Register
 } NVIC_t;
 
 #define NVIC ((NVIC_t *) 0xE000E100)
@@ -40,21 +40,21 @@ typedef struct {
  *
  * Returns nothing and does no checking
  */
-void NVIC_enable_IRQ (uint32_t IRQn);
+void NVIC_enable_IRQ(uint32_t IRQn);
 
 /*
  * Disable an IRQ line
  *
  * Returns nothing and does not checking
  */
-void NVIC_disable_IRQ (uint32_t IRQn);
+void NVIC_disable_IRQ(uint32_t IRQn);
 
 /*
  * Set the pending bit of an IRQ line
  *
  * Returns nothing and does no checking
  */
-void NVIC_set_pending (uint32_t IRQn);
+void NVIC_set_pending(uint32_t IRQn);
 
 /*
  * Set the priority of an IRQ line
@@ -63,35 +63,35 @@ void NVIC_set_pending (uint32_t IRQn);
  *
  * Returns nothing and does no checking
  */
-void NVIC_set_priority (uint32_t IRQn, uint32_t priority);
+void NVIC_set_priority(uint32_t IRQn, uint32_t priority);
 
 /*
  * Clear the pending state of an IRQ line
  *
  * Returns nothing and does no checking
  */
-void NVIC_clear_pending (uint32_t IRQn);
+void NVIC_clear_pending(uint32_t IRQn);
 
 /*
  * Is the current IRQ line pending?
  *
  * Return 0 if it's pending and 1 if it's not
  */
-uint8_t NVIC_is_pending (uint32_t IRQn);
+uint8_t NVIC_is_pending(uint32_t IRQn);
 
 /*
  * Is the current IRQ line being processed?
  *
  * Return 0 if it's pending and 1 if it's not
  */
-uint8_t NVIC_is_active (uint32_t IRQn);
+uint8_t NVIC_is_active(uint32_t IRQn);
 
 /*
  * Get the current IRQ line priority
  *
  * Return the priority
  */
-uint8_t NVIC_get_priority (uint32_t IRQn);
+uint8_t NVIC_get_priority(uint32_t IRQn);
 
 /*
  * Trigger an interrupt on an IRQ line
@@ -115,4 +115,4 @@ void NVIC_clear_all_pending(void);
  */
 void NVIC_reset_all_priorities(void);
 
-#endif // NVIC_H
+#endif				// NVIC_H
