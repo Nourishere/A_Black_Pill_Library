@@ -628,22 +628,6 @@ uint8_t RCC_set_TIM_prescaler(uint32_t prescaler)
 }
 
 /*
- * Enable the RTC clock
- */
-static inline void RCC_enable_RTC(void)
-{
-	RCC_BDCR |= 1 << 16;
-}
-
-/*
- * Disable the RTC clock
- */
-static inline void RCC_disable_RTC(void)
-{
-	RCC_BDCR &= ~(1 << 16);
-}
-
-/*
  * Enable the main PLL and wait till it's locked
  *
  * Return 0 upon success, 1 otherwise

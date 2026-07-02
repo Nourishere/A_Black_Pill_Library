@@ -211,12 +211,18 @@ uint8_t RCC_disable_PLLI2S(void);
 /*
  * Enable the RTC clock
  */
-static inline void RCC_enable_RTC(void);
+static inline void RCC_enable_RTC(void)
+{
+	RCC_BDCR |= 1 << 16;
+}
 
 /*
  * Disable the RTC clock
  */
-static inline void RCC_disable_RTC(void);
+static inline void RCC_disable_RTC(void)
+{
+	RCC_BDCR &= ~(1 << 16);
+}
 
 /*
  * Set and activate an output clock on one of the MCO pins
