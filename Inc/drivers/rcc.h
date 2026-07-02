@@ -177,6 +177,17 @@ uint8_t RCC_set_SSM(uint32_t modulation_period, uint32_t inc_step,
 uint8_t RCC_set_bus_prescaler(bus_t bus, uint32_t prescaler);
 
 /*
+ * Get the prescaler for a specific bus.
+ *
+ * NOTE: For the APBx buses, the input is the AHB bus clock.
+ *		 For the AHB bus, the input is the system clock.
+ * prescaler: A pointer to hold the raw prescaler value
+ *
+ * Return 0 upon success and 1 otherwise.
+ */
+uint8_t RCC_get_bus_prescaler(bus_t bus, uint32_t * prescaler);
+
+/*
  * Set the clock prescaler for the timers using the APBx buses
  * NOTE: If the bus prescaler (configured using `RCC_bus_prescaler()`) for the APBx buses is set to 1,
  * 		 the clock used for these timers is just the HCLK (AHB bus clock)
@@ -292,5 +303,13 @@ uint8_t RCC_get_SYSCLK_freq(uint32_t * freq);
  * qfreq: The output frequency after the Q divisor (goes to the USB_OTG, SDIO, and RNG)
  */
 uint8_t RCC_get_PLL_clkout(uint32_t * pfreq, uint32_t * qfreq);
+
+/*
+ * Get the output frequency of a specified bus
+ *
+ * freq: A pointer to a uint32_t to store the return frequency
+ * bus: AHB, APB1, or APB2 (check `enum bus_t`)
+ */
+uint8_t RCC_get_bus_clkout(uint32_t * freq, bus_t bus);
 
 #endif				// RCC_H

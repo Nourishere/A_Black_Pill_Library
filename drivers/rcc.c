@@ -190,6 +190,109 @@ uint8_t RCC_set_bus_prescaler(bus_t bus, uint32_t prescaler)
 }
 
 /*
+ * Get the prescaler value for a specific bus.
+ *
+ * NOTE: The value returned is the actual divisor value not the value written in the registers
+ * NOTE: For the APBx buses, the input is the AHB bus clock.
+ *		 For the AHB bus, the input is the system clock.
+ * prescaler: A pointer to hold the raw prescaler value
+ *
+ * Return 0 upon success and 1 otherwise.
+ */
+uint8_t RCC_get_bus_prescaler(bus_t bus, uint32_t *prescaler)
+{
+	uint32_t prescaler_tmp;
+	if (prescaler == NULL)
+		return 1;
+	if (bus != AHB && bus != APB1 && bus != APB2)
+		return 1;
+	switch (bus) {
+	case (AHB):
+		prescaler_tmp = ((RCC_CFGR >> 4) & 0x0F);
+		switch (prescaler_tmp) {
+		case (0):
+			*prescaler = 1;
+			break;
+		case (8):
+			*prescaler = 2;
+			break;
+		case (9):
+			*prescaler = 4;
+			break;
+		case (10):
+			*prescaler = 8;
+			break;
+		case (11):
+			*prescaler = 16;
+			break;
+		case (12):
+			*prescaler = 64;
+			break;
+		case (13):
+			*prescaler = 128;
+			break;
+		case (14):
+			*prescaler = 256;
+			break;
+		case (15):
+			*prescaler = 512;
+			break;
+		default:
+			return 1;
+		}
+		break;
+	case (APB1):
+		prescaler_tmp = ((RCC_CFGR >> 10) & 0x07);
+		switch (prescaler_tmp) {
+		case (0):
+			*prescaler = 1;
+			break;
+		case (4):
+			*prescaler = 2;
+			break;
+		case (5):
+			*prescaler = 4;
+			break;
+		case (6):
+			*prescaler = 8;
+			break;
+		case (7):
+			*prescaler = 16;
+			break;
+		default:
+			return 1;
+		}
+		break;
+	case (APB2):
+		prescaler_tmp = ((RCC_CFGR >> 13) & 0x07);
+		switch (prescaler_tmp) {
+		case (0):
+			*prescaler = 1;
+			break;
+		case (4):
+			*prescaler = 2;
+			break;
+		case (5):
+			*prescaler = 4;
+			break;
+		case (6):
+			*prescaler = 8;
+			break;
+		case (7):
+			*prescaler = 16;
+			break;
+		default:
+			return 1;
+		}
+		break;
+	default:
+		return 1;
+	}
+
+	return 0;
+}
+
+/*
  * Configure the main PLL.
  * Use enum values from `sysclk_src` (Inc/drivers/rcc.h)
  *
@@ -768,6 +871,42 @@ uint8_t RCC_get_PLL_clkout(uint32_t *pfreq, uint32_t *qfreq)
 	uint32_t vco = (freq / M) * N;
 	*pfreq = vco / P;
 	*qfreq = vco / Q;
+	return 0;
+}
+
+/*
+ * Get the output frequency of a specified bus
+ *
+ * freq: A pointer to a uint32_t to store the return frequency
+ * bus: AHB, APB1, or APB2 (check `enum bus_t`)
+ *
+ * Return 0 upon success and 1 otherwise
+ */
+uint8_t RCC_get_bus_clkout(uint32_t *freq, bus_t bus)
+{
+	uint32_t sysclk_freq;
+	uint32_t prescaler;
+	uint32_t ahb_prescaler;
+
+	if (freq == NULL)
+		return 1;
+	if (bus != AHB && bus != APB1 && bus != APB2)
+		return 1;
+
+	if (RCC_get_SYSCLK_freq(&sysclk_freq))
+		return 1;
+	if (RCC_get_bus_prescaler(AHB, &ahb_prescaler))
+		return 1;
+
+	if (bus == AHB) {
+		// HCLK doesn't use a dedicated prescaler
+		*freq = sysclk_freq / ahb_prescaler;
+	} else {
+		if (RCC_get_bus_prescaler(bus, &prescaler))
+			return 1;
+		*freq = sysclk_freq / (prescaler * ahb_prescaler);
+	}
+
 	return 0;
 }
 
