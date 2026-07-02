@@ -706,7 +706,7 @@ uint8_t RCC_disable_PLLI2S(void)
  *
  * Return 0 upon success and 1 otherwise.
  */
-uint32_t RCC_get_SYSCLK_freq(uint32_t *freq)
+uint8_t RCC_get_SYSCLK_freq(uint32_t *freq)
 {
 	uint32_t M, N, P, Q;
 	uint32_t pfreq, qfreq;
@@ -745,7 +745,7 @@ uint32_t RCC_get_SYSCLK_freq(uint32_t *freq)
  * Return 0 upon success and 1 otherwise
  *
  */
-uint32_t RCC_get_PLL_clkout(uint32_t *pfreq, uint32_t *qfreq)
+uint8_t RCC_get_PLL_clkout(uint32_t *pfreq, uint32_t *qfreq)
 {
 	sysclk_src_t src;
 	if (pfreq == NULL || qfreq == NULL)

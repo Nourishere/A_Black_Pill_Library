@@ -280,7 +280,7 @@ uint8_t RCC_disable_peripheral(peripheral_t peripheral);
  *
  * freq: A pointer to a uint32_t to store the frequency in.
  */
-uint32_t RCC_get_SYSCLK_freq(uint32_t * freq);
+uint8_t RCC_get_SYSCLK_freq(uint32_t * freq);
 
 /*
  * Get the output frequencies of the main PLL
@@ -291,6 +291,6 @@ uint32_t RCC_get_SYSCLK_freq(uint32_t * freq);
  * pfreq: The output frequency after the P divisor (goes to systemclk MUX)
  * qfreq: The output frequency after the Q divisor (goes to the USB_OTG, SDIO, and RNG)
  */
-uint32_t RCC_get_PLL_clkout(uint32_t * pfreq, uint32_t * qfreq);
+uint8_t RCC_get_PLL_clkout(uint32_t * pfreq, uint32_t * qfreq);
 
 #endif				// RCC_H
