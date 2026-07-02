@@ -1,4 +1,4 @@
-/* 
+/*
  * RCC (Reset and clock control) module source
  * Date: Sun Apr 19 02:36:35 PM EET 2026
  * Author: Nour Nawar <nournawar5@gmail.com>
@@ -195,11 +195,11 @@ uint8_t RCC_set_bus_prescaler(bus_t bus, uint32_t prescaler)
  *
  * NOTE: it's an error if you call this function when the PLL is used as the system clock
  * NOTE: the PLL is turned off for configuration and then restored at the end.
- * NOTE: for HSE clock, you need to input the correct parameters to insure that 
+ * NOTE: for HSE clock, you need to input the correct parameters to insure that
  * 		 the output clock frequency is in the valid range.
  *
  * src: clock input to the PLL (either HSE or HSI)
- * M: HSI/HSE clock input division factor. 
+ * M: HSI/HSE clock input division factor.
  * N: VCO output multiplier.
  * P: SYSCLK output division factor.
  * Q: SDIO, RNG, and USB output division factor.
@@ -260,7 +260,7 @@ uint8_t RCC_set_PLL(sysclk_src_t src, uint32_t M, uint32_t N, uint32_t P,
 /*
  * Set and activate an output clock on one of the MCO pins
  * NOTE: Clock selection may generate glitches on MCOx.
- * 		 It is highly recommended to call this function only after 
+ * 		 It is highly recommended to call this function only after
  * 		 reset before enabling the external oscillators and the PLLs.
  *
  * clk: output clock on the MCOx pin
@@ -413,7 +413,7 @@ uint8_t RCC_disable_LP_peripheral(peripheral_t peripheral)
 /*
  * Enable the SSM module.
  * NOTE: This can only be done before the PLL is enabled (before setting the PLLON bit).
- * NOTE: The fuction will attempt to disable the PLL in case it was enabled. Only that 
+ * NOTE: The fuction will attempt to disable the PLL in case it was enabled. Only that
  * 		 is an error to disable the PLL if it's used as system clock.
  *
  * Return 0 upon success and 1 otherwise
@@ -438,7 +438,7 @@ uint8_t RCC_enable_SSM(void)
 /*
  * Disable the SSM module.
  * NOTE: This can only be done after the PLL is disabled (after clearing the PLLON bit).
- * NOTE: The fuction will attempt to disable the PLL in case it was enabled. Only that 
+ * NOTE: The fuction will attempt to disable the PLL in case it was enabled. Only that
  * 		 is an error to disable the PLL if it's used as system clock.
  *
  * Return 0 upon success and 1 otherwise.
@@ -481,7 +481,7 @@ uint8_t RCC_set_PLLI2S(uint32_t R, uint32_t N)
 		return 1;
 
 	// Determine which clock source the PLL is using
-	// (this is set by the main PLL)        
+	// (this is set by the main PLL)
 	pll_clk = ((RCC_PLLCFGR >> 22) & 0x01) ? clk_HSE : clk_HSI;
 	// frequency of HSI is 16 MHz
 	freq = (pll_clk == clk_HSI) ? HSI_FRQ : HSE_FRQ;

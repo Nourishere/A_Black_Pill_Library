@@ -1,4 +1,4 @@
-/* 
+/*
  * RCC (Reset and clock control) module header.
  * Date: Sun 22 Feb 2026
  * Author: Nour Nawar <nournawar5@gmail.com>
@@ -54,7 +54,7 @@
 #define RCC_SSCGR		*((volatile uint32_t*)(RCC_BASE+0x80))
 // PLLI2S configuration register
 #define RCC_PLLI2SCFGR	*((volatile uint32_t*)(RCC_BASE+0x84))
-// Dedicated clocks configuration register 
+// Dedicated clocks configuration register
 #define RCC_DCKCFGR		*((volatile uint32_t*)(RCC_BASE+0x8C))
 
 // Max/min prescaler value of the following PLL divisors/multipliers
@@ -74,7 +74,7 @@
 #define MIN_R_FRQ (2*1000000)
 #define MAX_R_FRQ (7*1000000)
 #define MAX_Q_FRQ (48*1000000)
-// Max RTC output frequency (in Hz0
+// Max RTC output frequency (in Hz)
 #define MAX_RTC_FRQ (1000000)
 // Max AHB bus prescaler
 #define MAX_AHB_PRS 512
