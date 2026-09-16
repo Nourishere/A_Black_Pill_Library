@@ -23,46 +23,28 @@
  */
 uint8_t IWDG_init(uint32_t reload_time)
 {
-	uint32_t prescaler = 0;
-	uint32_t prescaler_reg = 0;
-	uint32_t reload_value = 0;
-
-	// Wait if there are any ongoing updates to the prescaler or the reload value
-	while (IWDG->SR & 0x01) ;
-	while ((IWDG->SR >> 1) & 0x01) ;
-
+	// Start with the lowest prescaler value and go down
+	uint32_t prescaler = 4;
+	uint32_t prescaler_register;
+	uint32_t reload;
 	if (reload_time > MAX_RELOAD_TIME || reload_time < MIN_RELOAD_TIME)
 		return 1;
-
-	if (reload_time <= 512) {
-		prescaler = 4;
-		prescaler_reg = 0;
-	} else if (reload_time <= 1024) {
-		prescaler = 8;
-		prescaler_reg = 1;
-	} else if (reload_time <= 2048) {
-		prescaler = 16;
-		prescaler_reg = 2;
-	} else if (reload_time <= 4096) {
-		prescaler = 32;
-		prescaler_reg = 3;
-	} else if (reload_time <= 8192) {
-		prescaler = 64;
-		prescaler_reg = 4;
-	} else if (reload_time <= 16384) {
-		prescaler = 128;
-		prescaler_reg = 5;
-	} else {
-		prescaler = 256;
-		prescaler_reg = 6;
+	// Keep increasing the prescaler till the reload value is valid
+	while (prescaler <= 256) {
+		reload = ((reload_time * LSI_FRQ) / (prescaler * 1000U)) - 1;
+		if (reload < 4096)
+			break;
+		prescaler *= 2;
 	}
-
+	if (prescaler > 256)
+		return 1;
+	while (prescaler > 4) {
+		prescaler /= 2;
+		prescaler_register++;
+	}
 	IWDG->KR = 0x5555;
-	IWDG->PR = prescaler_reg;
-
-	reload_value = (reload_time * LSI_FRQ) / (prescaler * 1000.0);
-	IWDG->KR = 0x5555;
-	IWDG->RLR = 0x7FF & reload_value;
+	IWDG->PR = prescaler_register;
+	IWDG->RLR = reload;
 
 	return 0;
 }
