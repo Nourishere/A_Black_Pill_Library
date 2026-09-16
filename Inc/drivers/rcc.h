@@ -10,6 +10,7 @@
 #include <stdint.h>
 
 #define RCC_BASE 0x40023800
+
 // Control register
 #define RCC_CR			*((volatile uint32_t*)(RCC_BASE+0x00))
 // PLL configuration register
@@ -65,6 +66,7 @@
 #define MAX_P 84
 #define MIN_R 2
 #define MAX_R 7
+
 // Max/min output frequency (in Hz) of the following PLL divisors/multipliers
 #define MAX_M_FRQ (2*1000000)
 #define MIN_M_FRQ (1*1000000)
@@ -74,6 +76,7 @@
 #define MIN_R_FRQ (2*1000000)
 #define MAX_R_FRQ (7*1000000)
 #define MAX_Q_FRQ (48*1000000)
+
 // Max RTC output frequency (in Hz)
 #define MAX_RTC_FRQ (1000000)
 // Max AHB bus prescaler
@@ -87,6 +90,7 @@
 #define LSE_FRQ 32768
 // LSI frequency (in Hz)
 #define LSI_FRQ 32000
+
 // MCO pin (for clock out functionality)
 typedef enum {
 	MCO1, MCO2
