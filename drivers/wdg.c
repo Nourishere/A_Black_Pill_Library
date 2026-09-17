@@ -21,7 +21,7 @@
  *
  * Return 0 upon success and 1 otherwise
  */
-uint8_t IWDG_init(uint32_t reload_time)
+uint8_t IWDG_init(float reload_time)
 {
 	// Start with the lowest prescaler value and go down
 	uint32_t prescaler = 4;
@@ -31,7 +31,8 @@ uint8_t IWDG_init(uint32_t reload_time)
 		return 1;
 	// Keep increasing the prescaler till the reload value is valid
 	while (prescaler <= 256) {
-		reload = ((reload_time * LSI_FRQ) / (prescaler * 1000U)) - 1;
+		reload =
+		    ((reload_time * (float)LSI_FRQ) / (prescaler * 1000U)) - 1;
 		if (reload < 4096)
 			break;
 		prescaler *= 2;

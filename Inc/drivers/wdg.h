@@ -47,7 +47,7 @@ static uint8_t wwdg_initialized = 0;
  * NOTE: The application is resposible for initial watchdog configuration
  * (i.e. hardware or software driven). This is configured from the FLASH CFRs
  */
-uint8_t IWDG_init(uint32_t reload_time);
+uint8_t IWDG_init(float reload_time);
 
 /*
  * Start the IWDG timer (Action cannot be undone)
