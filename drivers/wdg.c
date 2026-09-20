@@ -21,7 +21,7 @@
  *
  * Return 0 upon success and 1 otherwise
  */
-uint8_t IWDG_init(uint32_t reload_time)
+uint8_t IWDG_init(float reload_time)
 {
 	// Start with the lowest prescaler value and go down
 	uint32_t prescaler = 4;
@@ -31,7 +31,8 @@ uint8_t IWDG_init(uint32_t reload_time)
 		return 1;
 	// Keep increasing the prescaler till the reload value is valid
 	while (prescaler <= 256) {
-		reload = ((reload_time * LSI_FRQ) / (prescaler * 1000U)) - 1;
+		reload =
+		    ((reload_time * (float)LSI_FRQ) / (prescaler * 1000U)) - 1;
 		if (reload < 4096)
 			break;
 		prescaler *= 2;
@@ -66,9 +67,9 @@ uint8_t WWDG_init(uint32_t reload_time, uint32_t window_time)
 {
 	uint32_t apb1_clk;
 	uint8_t found = 0;
-	double tick;
-	double downcounter;
-	double windowcounter;
+	float tick;
+	float downcounter;
+	float windowcounter;
 	uint32_t timer_base;
 
 	// Disable if enabled
@@ -80,19 +81,19 @@ uint8_t WWDG_init(uint32_t reload_time, uint32_t window_time)
 	if (RCC_get_bus_clkout(&apb1_clk, APB1))
 		return 1;
 	// apb1_period is in ms and apb1_clk is in Hz
-	double apb1_period = 1000.0 / ((double)apb1_clk);
+	float apb1_period = 1000.0f / ((float)apb1_clk);
 
 	// reload time = apb period * 4096 * 2^ timer base *  7bit counter
-	double exp_min = 4096.0 * 8.0 * 64.0;
-	double exp_max = 4096.0;
-	double apb1_max_timeout = apb1_period * exp_max;
-	double apb1_min_timeout = apb1_period * exp_min;
+	float exp_min = 4096.0f * 8.0f * 64.0f;
+	float exp_max = 4096.0f;
+	float apb1_max_timeout = apb1_period * exp_max;
+	float apb1_min_timeout = apb1_period * exp_min;
 
 	if (reload_time > apb1_max_timeout || reload_time < apb1_min_timeout)
 		return 1;
 
 	for (timer_base = 0; timer_base < 4; timer_base++) {
-		tick = apb1_period * 4096.0 * (double)(1 << timer_base);
+		tick = apb1_period * 4096.0f * (float)(1 << timer_base);
 		downcounter = 0x40 | ((uint32_t) (reload_time / tick) - 1);
 		if (downcounter > 0x7F || downcounter < 0)
 			continue;
