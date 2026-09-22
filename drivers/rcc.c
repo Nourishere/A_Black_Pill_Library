@@ -881,6 +881,7 @@ uint8_t RCC_get_PLL_clkout(uint32_t *pfreq, uint32_t *qfreq)
  * bus: AHB, APB1, or APB2 (check `enum bus_t`)
  *
  * Return 0 upon success and 1 otherwise
+ *
  */
 uint8_t RCC_get_bus_clkout(uint32_t *freq, bus_t bus)
 {
@@ -905,6 +906,39 @@ uint8_t RCC_get_bus_clkout(uint32_t *freq, bus_t bus)
 		if (RCC_get_bus_prescaler(bus, &prescaler))
 			return 1;
 		*freq = sysclk_freq / (prescaler * ahb_prescaler);
+	}
+
+	return 0;
+}
+
+/*
+ * Get the current system clock
+ *
+ * sysclk: A pointer to a sysclk_src_t type to store the return system clock
+ *
+ * Return 0 upon success and 1 otherwise
+ *
+ */
+uint8_t RCC_get_SYSCLK(sysclk_src_t *sysclk)
+{
+	uint8_t clk_src;
+
+	if (sysclk == NULL)
+		return 1;
+
+	clk_src = (RCC_CFGR >> 2) & 0x3U;
+	switch (clk_src) {
+	case (0):
+		*sysclk = HSI;
+		break;
+	case (1):
+		*sysclk = HSE;
+		break;
+	case (2):
+		*sysclk = PLL;
+		break;
+	default:
+		return 1;
 	}
 
 	return 0;
@@ -937,7 +971,7 @@ static void RCC_write_PLL_params(uint32_t M, uint32_t N, uint32_t P, uint32_t Q)
  * state: 0 for disable, 1 for enable
  * lp: 0 for normal mode, 1 for low power mode
  *
- * Returns 0 upon success and 1 otherwise
+ * Return 0 upon success and 1 otherwise
  *
  */
 static uint8_t RCC_con_peripheral(peripheral_t peripheral, uint32_t state,
@@ -990,7 +1024,7 @@ static uint8_t RCC_get_PLL_params(uint32_t *M, uint32_t *N, uint32_t *P,
  * Check the frequency flow for the main PLL.
  * Any frequency violation within the PLL will return 1.
  *
- * Returns 0 upon success, 1 otherwise
+ * Return 0 upon success, 1 otherwise
  *
  */
 static uint8_t RCC_check_PLL_freq_flow(sysclk_src_t src, uint32_t M, uint32_t N,
