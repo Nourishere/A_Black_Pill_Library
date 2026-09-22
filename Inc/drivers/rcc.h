@@ -316,4 +316,22 @@ uint8_t RCC_get_PLL_clkout(uint32_t * pfreq, uint32_t * qfreq);
  */
 uint8_t RCC_get_bus_clkout(uint32_t * freq, bus_t bus);
 
+/*
+ * Get the current system clock
+ *
+ * sysclk: A pointer to a sysclk_src_t type to store the return system clock
+ */
+uint8_t RCC_get_SYSCLK(sysclk_src_t * sysclk);
+
+/*
+ * Return whether the PLL is enabled (1) or disabled (0)
+ *
+ * This function might be used for outside modules
+ *
+ */
+static inline uint8_t RCC_get_PLL_state(void)
+{
+	return (((RCC_CR >> 24) & 0x1U) == 0x1) ? 1 : 0;
+}
+
 #endif				// RCC_H
