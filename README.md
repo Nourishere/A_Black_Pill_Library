@@ -28,7 +28,7 @@
 * You need to have `make` and the `arm-none-eabi` GCC toolchain or something similar installed, or use an IDE if you are into that kind of stuff!
  
 ## Building
-* Use `make` to bulid the library; `make` defaults to bulilding a debug lib version.
+* Use `make` to build the library; `make` defaults to building a debug lib version.
 * Use `make release` to build a library with compiler optimizations and no debug flags. 
 * Use `make TOOL_DIR=/path/to/toolchain/bin` to specify the toolchain directory. 
 
