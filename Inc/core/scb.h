@@ -87,4 +87,86 @@ uint8_t SCB_encode_priority(uint8_t prigroup, uint8_t groupri, uint8_t subpri,
 void SCB_decode_priority(uint8_t priority, uint8_t prigroup, uint8_t * groupri,
 			 uint8_t * subpri, uint8_t dev_pri);
 
+/*
+ * Enable the Deep Sleep power mode
+ *
+ * In Deep Sleep, all clock signals are gated
+ *
+ * NOTE: Sleep and Deep-Sleep are mutually execlusive
+ *
+ * Return nothing
+ *
+ */
+static inline void SCB_enable_deepsleep(void)
+{
+	*SCB->SCR |= 1 << 2;
+}
+
+/*
+ * Enable the Sleep power mode
+ *
+ * In Sleep, most clock signals are gated
+ *
+ * NOTE: Sleep and Deep-Sleep are mutually execlusive
+ *
+ * Return nothing
+ *
+ */
+static inline void SCB_enable_sleep(void)
+{
+	*SCB->SCR &= ~(1 << 2);
+}
+
+/*
+ * Enable Sleep-on-Exit power mode
+ *
+ * In Sleep-on-Exit, the processor enters sleep mode automatically when exiting
+ * from an exception handler or returning to Thread mode
+ *
+ * Return nothing
+ *
+ */
+static inline void SCB_enable_sleeponexit(void)
+{
+	*SCB->SCR |= 1 << 1;
+}
+
+/*
+ * Disable Sleep-on-Exit power mode
+ *
+ * Return nothing
+ *
+ */
+static inline void SCB_disable_sleeponexit(void)
+{
+	*SCB->SCR &= ~(1 << 1);
+}
+
+/*
+ * Enter the configured sleep mode waiting on an event
+ *
+ * NOTE: Setup the sleep mode by calling `SCB_enable_*` first
+ * NOTE: This call can still be woken up by interrupt requests
+ *
+ * Return nothing
+ *
+ */
+static inline void SCB_enter_sleep_event(void)
+{
+	__asm__ volatile ("wfe");
+}
+
+/*
+ * Enter the configured sleep mode waiting on an interrupt
+ *
+ * NOTE: setup the sleep mode by calling `SCB_enable_*` first
+ *
+ * Return nothing
+ *
+ */
+static inline void SCB_enter_sleep_interrupt(void)
+{
+	__asm__ volatile ("wfi");
+}
+
 #endif				// SCB_H
