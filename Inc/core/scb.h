@@ -151,7 +151,7 @@ static inline void SCB_disable_sleeponexit(void)
  * Return nothing
  *
  */
-static inline void SCB_enter_sleep_event(void)
+static inline void SCB_enter_sleep_on_event(void)
 {
 	__asm__ volatile ("wfe");
 }
@@ -164,9 +164,28 @@ static inline void SCB_enter_sleep_event(void)
  * Return nothing
  *
  */
-static inline void SCB_enter_sleep_interrupt(void)
+static inline void SCB_enter_sleep_on_interrupt(void)
 {
 	__asm__ volatile ("wfi");
+}
+
+/*
+ * Enable the Send Event on Pend feature
+ * NOTE: This feature allows the interrupt pending bit to
+ * 	 wake up the CPU. This feature is used with the
+ * 	 wake from event (WFE) sleep operation
+ */
+static inline void SCB_enable_send_event_on_pend(void)
+{
+	*SCB->SCR |= 1 << 4;
+}
+
+/*
+ * Disable the Send Event on Pen feature
+ */
+static inline void SCB_disable_send_event_on_pend(void)
+{
+	*SCB->SCR &= ~(1 << 4);
 }
 
 #endif				// SCB_H
