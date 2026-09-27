@@ -13,6 +13,9 @@
 #include <stdint.h>
 #include <drivers/rcc.h>
 #include <drivers/flash_ob.h>
+#include <drivers/exti.h>
+#include <core/nvic.h>
+#include <core/scb.h>
 
 #define PWR_BASE 0x40007000
 
@@ -20,13 +23,16 @@
 #define PWR_CSR		(*(volatile uint32_t *) (PWR_BASE + 0x04))
 
 /*
- * The device's voltage regulator has four operating modes:
- * ON:
+ * The device's has two voltage regulators
  * 	Main regulator mode (MR)
- * 	Low power regulartor (LPR)
- * 	Power-down
- * OFF
+ * 	Low power regulator (LPR)
+ * Each regulator has two modes of opeartion:
+ * 	Normal
+ * 	Low Power
  */
+typedef enum {
+	main, main_lp, low_power, low_power_lp
+} regulator_mode_t;
 
 /*
  * Set up the regulator's scale
