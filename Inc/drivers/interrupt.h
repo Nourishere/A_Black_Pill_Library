@@ -95,6 +95,11 @@ uint8_t interrupt_set_pending(IRQn_t line);
 uint8_t interrupt_clear_pending(IRQn_t line);
 
 /*
+ * Clear all pending state for all IRQ lines
+ */
+uint8_t interrupt_clear_all_pending(void)
+
+/*
  * Is the IRQ line pending service?
  * Return 1 if it is and 0 if is not
  */
@@ -105,6 +110,7 @@ uint8_t interrupt_is_pending(IRQn_t line);
  * Return 1 if it is and 0 if is not
  */
 uint8_t interrupt_is_active(IRQn_t line);
+
 /*
  * Enable an IRQ line
  */

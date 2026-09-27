@@ -110,6 +110,13 @@ uint8_t interrupt_clear_pending(IRQn_t line)
 	return 0;
 }
 
+uint8_t interrupt_clear_all_pending(void)
+{
+	for (int i = 0; i < PI4; i++)
+		NVIC_clear_pending(i);
+	return 0;
+}
+
 /*
  * Is the IRQ line pending service? 
  *
