@@ -113,10 +113,10 @@ typedef enum {
 
 // Peripherals
 typedef enum {
-	GPIOA, GPIOB, GPIOC, GPIOD, GPIOE, GPIOH, CRC, OTGFS,
-	TIM1, TIM2, TIM3, TIM4, TIM5, TIM9, TIM10, TIM11,
-	WWDG, SPI2, SPI3, USART1, USART2, USART6, I2C1, I2C2,
-	SDIO, SPI1, SPI4, DMA1, DMA2, PWR, SYSCFG, I2C3, ADC1
+	GPIOA_p, GPIOB_p, GPIOC_p, GPIOD_p, GPIOE_p, GPIOH_p, CRC_p, OTGFS_p,
+	TIM1_p, TIM2_p, TIM3_p, TIM4_p, TIM5_p, TIM9_p, TIM10_p, TIM11_p,
+	WWDG_p, SPI2_p, SPI3_p, USART1_p, USART2_p, USART6_p, I2C1_p, I2C2_p,
+	SDIO_p, SPI1_p, SPI4_p, DMA1_p, DMA2_p, PWR_p, SYSCFG_p, I2C3_p, ADC1_p
 } peripheral_t;
 
 // Peripheral register lookup table
