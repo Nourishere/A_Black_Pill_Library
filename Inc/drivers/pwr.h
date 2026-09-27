@@ -94,7 +94,7 @@ static inline void PWR_disable_PVD(void)
  */
 static inline uint8_t PWR_read_PVD_state(void)
 {
-	return (PWR_CR >> 2) & 0x1;
+	return (PWR_CSR >> 2) & 0x1;
 }
 
 /*
