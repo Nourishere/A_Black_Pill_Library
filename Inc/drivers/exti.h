@@ -100,4 +100,17 @@ uint8_t EXTI_trigger_interrupt(EXTIn_t line);
  * Clear pending state of en EXTI line
  */
 uint8_t EXTI_clear_pending(EXTIn_t line);
+
+/*
+ * Clear all EXTI pending states
+ */
+static inline void EXTI_clear_all_pending(void)
+{
+	for (int i = 0; i < EXTI_22; i++) {
+		if (i == EXTI_20 || i == EXTI_19)
+			continue;
+		EXTI_PR = 1 << i;
+	}
+}
+
 #endif				//EXTI_H
