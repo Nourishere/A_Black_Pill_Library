@@ -97,7 +97,7 @@ uint8_t interrupt_clear_pending(IRQn_t line);
 /*
  * Clear all pending state for all IRQ lines
  */
-uint8_t interrupt_clear_all_pending(void)
+uint8_t interrupt_clear_all_pending(void);
 
 /*
  * Is the IRQ line pending service?
