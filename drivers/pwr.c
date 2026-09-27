@@ -24,7 +24,6 @@
  * 	  3 - 1.32 V
  *
  * Return 0 upon success and 1 otherwise
- *
  */
 uint8_t PWR_set_regulator_scale(uint8_t scale)
 {
@@ -48,14 +47,17 @@ uint8_t PWR_set_regulator_scale(uint8_t scale)
 	// Set the regulator output scale
 	PWR_CR &= ~(0x3U << 14);
 	if (scale == 2)
-		PWR_CR |= 0x1U << 14;
-	else
 		PWR_CR |= 0x2U << 14;
+	else
+		PWR_CR |= 0x1U << 14;
 
 	// Turn the PLL back on if it was originally on
-	if (pll_state)
-		if (RCC_enable_PLL())
+	if (pll_state) {
+		if (RCC_enable_PLL()) {
+			PWR_CR &= ~(0x3U << 14);
 			return 1;
+		}
+	}
 
 	return 0;
 }
@@ -67,7 +69,6 @@ uint8_t PWR_set_regulator_scale(uint8_t scale)
  * 	      Values are from 2.2 - 2.9 (0.1 V increment)
  *
  * Return 0 upon success and 1 otherwise
- *
  */
 uint8_t PWR_set_PVD(float threshold)
 {
@@ -80,8 +81,183 @@ uint8_t PWR_set_PVD(float threshold)
 	// go through a lot of conditions
 	uint8_t val = (uint8_t) ((threshold - 2.0f) * 10.0f) - 2;
 
-	PWR_CR &= ~(0x3 << 5);
+	PWR_CR &= ~(0x7 << 5);
 	PWR_CR |= val << 5;
 
 	return 0;
+}
+
+/*
+ * Enter Sleep mode
+ *
+ * entry: 0 for event entry (issue a WFE instruction)
+ * 	  1 for interrupt entry (issue a WFI instruction)
+ *
+ * NOTE: Waiting on an event also waits on interrupts
+ *
+ * Return 0 after successful wakeup and 1 otherwise
+ */
+uint8_t PWR_enter_sleep_mode(uint8_t entry)
+{
+	if (entry > 1)
+		return 1;
+
+	// Disable Deep Sleep by enabling sleep
+	SCB_enable_sleep();
+
+	if (entry)
+		SCB_enter_sleep_on_interrupt();
+	else
+		SCB_enter_sleep_on_event();
+
+	return 0;
+}
+
+/*
+ * Enter Sleep-on-exit mode
+ *
+ * NOTE: See `PWR_enter_sleep_mode` for more information
+ */
+uint8_t PWR_enter_sleep_on_exit_mode(uint8_t entry)
+{
+	// Enable Sleep on Exit
+	SCB_enable_sleeponexit();
+
+	return PWR_enter_sleep_mode(entry);
+}
+
+/*
+ * Enter Stop mode
+ *
+ * NOTE: Stop mode is M4 deepsleep mode coupled with
+ * 	 peipheral clock gating
+ * NOTE: The two voltage regulators can be configured as normal or LP
+ * NOTE: The HSI, HSE, PLL, and 1.2 V domain are all disabled
+ * NOTE: It is an error if you disable the flash power-down mode
+ * 	 when the regulator is set in LP mode (main_lp or low_power_lp)
+ *
+ * regulator: Which regualtor in which mode (check `regulator_mode_t` in pwr.h)
+ * flash_mode: 1 to enable flash power-down mode 0 to disable it
+ *
+ * Return 0 after successful wakeup and 1 otherwise
+ */
+uint8_t PWR_enter_stop_mode(regulator_mode_t regulator,
+			    uint8_t flash_mode, uint8_t entry)
+{
+	if (regulator > low_power_lp)
+		return 1;
+	if (flash_mode > 1)
+		return 1;
+	if ((regulator == main_lp || regulator == low_power_lp)
+	    && (!flash_mode))
+		return 1;
+	// Clear regulator bits
+	PWR_CR &= ~((1 << 0) | (1 << 10) | (1 << 11));
+
+	// Set up regulator
+	switch (regulator) {
+	case (main):
+		// Nothing here
+		break;
+	case (main_lp):
+		PWR_CR |= 1 << 11;
+		break;
+	case (low_power):
+		PWR_CR |= 1 << 0;
+		PWR_CR &= ~(1 << 10);
+		break;
+	case (low_power_lp):
+		PWR_CR |= 1 << 0;
+		PWR_CR |= 1 << 10;
+		break;
+	default:
+		return 1;
+	}
+
+	// Set up flash power mode
+	if (flash_mode)
+		PWR_CR |= 1 << 9;
+	else
+		PWR_CR &= ~(1 << 9);
+
+	// Enable Deep Sleep mode
+	SCB_enable_deepsleep();
+
+	// Configure Stop mode
+	PWR_CR &= ~(1 << 1);
+
+	// Clear all pending bits
+	NVIC_clear_all_pending();
+	EXTI_clear_all_pending();
+
+	if (entry)
+		SCB_enter_sleep_on_interrupt();
+	else
+		SCB_enter_sleep_on_event();
+
+	return 0;
+}
+
+/*
+ * Enter Stop-on-exit mode
+ * NOTE: See `PWR_enter_stop_mode` for more information
+ */
+uint8_t PWR_enter_stop_on_exit_mode(regulator_mode_t regulator,
+				    uint8_t flash_mode, uint8_t entry)
+{
+	// Enable Sleep on Exit
+	SCB_enable_sleeponexit();
+
+	// Enter Sleep mode
+	return PWR_enter_stop_mode(regulator, flash_mode, entry);
+}
+
+/*
+ * Enter Standby mode
+ *
+ * NOTE: Standby mode is the lowest power consumption mode
+ *
+ * NOTE: The 1.2 domain is switched off. All clks are switched off
+ * 	 All register states are lost but for the backup domain
+ *
+ * Return 0 after successful wakeup and 1 otherwise
+ */
+uint8_t PWR_enter_standby_mode(uint8_t entry)
+{
+	if (entry > 1)
+		return 1;
+
+	// Enable Deep Sleep
+	SCB_enable_deepsleep();
+
+	// Configure Standby mode
+	PWR_CR |= 1 << 1;
+
+	// Clear all pending bits
+	NVIC_clear_all_pending();
+	EXTI_clear_all_pending();
+
+	// Clear the wakeup flag
+	PWR_CR |= 1 << 2;
+
+	if (entry)
+		SCB_enter_sleep_on_interrupt();
+	else
+		SCB_enter_sleep_on_event();
+
+	return 0;
+
+}
+
+/*
+ * Enter Standby-on-exit mode
+ * NOTE: See `PWR_enter_standby_mode` for more information
+ */
+uint8_t PWR_enter_standby_on_exit_mode(uint8_t entry)
+{
+	// Enable Sleep on Exit
+	SCB_enable_sleeponexit();
+
+	// Enter Standby mode
+	return PWR_enter_standby_mode(entry);
 }

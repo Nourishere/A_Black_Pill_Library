@@ -108,4 +108,73 @@ static inline uint8_t PWR_read_PVD_state(void)
  */
 uint8_t PWR_set_PVD(float threshold);
 
+/*
+ * The STM32f4 has three low-power modes:
+ * 	Sleep (sleep now or sleep-on exit)
+ * 	Stop
+ * 	Standby.
+ * The Sleep mode corresponds to the DEEPSLEEP bit set in the SCR
+ * register.
+ * The Stop mode corresponds to the DEEPSLEEP bit set in the SCR
+ * register. Peripheral clocks are gated. The voltage regulator can be
+ * configured either in normal or low-power mode.
+ * The Standby mode corresponds to the DEEPSLEEP bit set in the SCR
+ * retister. The 1.2 V domain is powered off. All the oscillators are
+ * turned off.
+ */
+
+/*
+ * Enter Sleep mode
+ *
+ * entry: 0 for event entry (issue a WFE instruction)
+ * 	  1 for interrupt entry (issue a WFI instruction)
+ *
+ * NOTE: Waiting on an event also waits on interrupts
+ */
+uint8_t PWR_enter_sleep_mode(uint8_t entry);
+
+/*
+ * Enter Sleep-on-exit mode
+ *
+ * NOTE: See `PWR_enter_sleep_mode` for more information
+ */
+uint8_t PWR_enter_sleep_on_exit_mode(uint8_t entry);
+
+/*
+ * Enter Stop mode
+ *
+ * NOTE: Stop mode is M4 deepsleep mode coupled with
+ * 	 peipheral clock gating
+ * NOTE: The two voltage regulators can be configured as normal or LP
+ * NOTE: The HSI, HSE, PLL, and 1.2 V domain are all disabled
+ *
+ * regulator: Which regualtor in which mode (check `regulator_mode_t` in pwr.h)
+ * flash_mode: 1 to enable flash power-down mode 0 to disable it
+ */
+uint8_t PWR_enter_stop_on_exit_mode(regulator_mode_t regulator,
+				    uint8_t flash_mode, uint8_t entry);
+
+/*
+ * Enter Stop-on-exit mode
+ * NOTE: See `PWR_enter_stop_mode` for more information
+ */
+uint8_t PWR_enter_stop_on_exit_mode(regulator_mode_t regulator,
+				    uint8_t flash_mode, uint8_t entry);
+
+/*
+ * Enter Standby mode
+ *
+ * NOTE: Standby mode is the lowest power consumption mode
+ *
+ * NOTE: The 1.2 domain is switched off. All clks are switched off
+ * 	 All register states are lost but for the backup domain
+ */
+uint8_t PWR_enter_standby(uint8_t entry);
+
+/*
+ * Enter Standby-on-exit mode
+ * NOTE: See `PWR_enter_standby_mode` for more information
+ */
+uint8_t PWR_enter_standby_on_exit(uint8_t entry);
+
 #endif				// PWR_H
