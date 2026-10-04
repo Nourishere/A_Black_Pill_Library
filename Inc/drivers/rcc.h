@@ -8,6 +8,7 @@
 #define RCC_H
 
 #include <stdint.h>
+#include "../../drivers/internal/ds.h"
 
 #define RCC_BASE 0x40023800
 
@@ -110,20 +111,6 @@ typedef enum {
 typedef enum {
 	AHB, APB1, APB2
 } bus_t;
-
-// Peripherals
-typedef enum {
-	GPIOA_p, GPIOB_p, GPIOC_p, GPIOD_p, GPIOE_p, GPIOH_p, CRC_p, OTGFS_p,
-	TIM1_p, TIM2_p, TIM3_p, TIM4_p, TIM5_p, TIM9_p, TIM10_p, TIM11_p,
-	WWDG_p, SPI2_p, SPI3_p, USART1_p, USART2_p, USART6_p, I2C1_p, I2C2_p,
-	SDIO_p, SPI1_p, SPI4_p, DMA1_p, DMA2_p, PWR_p, SYSCFG_p, I2C3_p, ADC1_p
-} peripheral_t;
-
-// Peripheral register lookup table
-typedef struct {
-	volatile uint32_t *enr;
-	uint32_t bit_position;
-} peripheral_reg_t;
 
 /*
  * Set the clock source for the system clock (SYSCLOCK)
