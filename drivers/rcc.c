@@ -4,8 +4,6 @@
  * Author: Nour Nawar <nournawar5@gmail.com>
  */
 
-#include <stdint.h>
-#include <limits.h>
 #include <drivers/rcc.h>
 
 static void RCC_write_PLL_params(uint32_t M, uint32_t N, uint32_t P,
@@ -202,7 +200,7 @@ uint8_t RCC_set_bus_prescaler(bus_t bus, uint32_t prescaler)
 uint8_t RCC_get_bus_prescaler(bus_t bus, uint32_t *prescaler)
 {
 	uint32_t prescaler_tmp;
-	if (prescaler == NULL)
+	if (prescaler == 0)
 		return 1;
 	if (bus != AHB && bus != APB1 && bus != APB2)
 		return 1;
@@ -813,7 +811,7 @@ uint8_t RCC_get_SYSCLK_freq(uint32_t *freq)
 {
 	uint32_t M, N, P, Q;
 	uint32_t pfreq, qfreq;
-	if (freq == NULL)
+	if (freq == 0)
 		return 1;
 	// read the current sysclock clock source
 	uint32_t temp = (RCC_CFGR >> 2) & 0x3;
@@ -851,7 +849,7 @@ uint8_t RCC_get_SYSCLK_freq(uint32_t *freq)
 uint8_t RCC_get_PLL_clkout(uint32_t *pfreq, uint32_t *qfreq)
 {
 	sysclk_src_t src;
-	if (pfreq == NULL || qfreq == NULL)
+	if (pfreq == 0 || qfreq == 0)
 		return 1;
 	uint32_t M, N, P, Q;
 	uint32_t freq;
@@ -889,7 +887,7 @@ uint8_t RCC_get_bus_clkout(uint32_t *freq, bus_t bus)
 	uint32_t prescaler;
 	uint32_t ahb_prescaler;
 
-	if (freq == NULL)
+	if (freq == 0)
 		return 1;
 	if (bus != AHB && bus != APB1 && bus != APB2)
 		return 1;
@@ -923,7 +921,7 @@ uint8_t RCC_get_SYSCLK(sysclk_src_t *sysclk)
 {
 	uint8_t clk_src;
 
-	if (sysclk == NULL)
+	if (sysclk == 0)
 		return 1;
 
 	clk_src = (RCC_CFGR >> 2) & 0x3U;
@@ -1009,7 +1007,7 @@ static uint8_t RCC_con_peripheral(peripheral_t peripheral, uint32_t state,
 static uint8_t RCC_get_PLL_params(uint32_t *M, uint32_t *N, uint32_t *P,
 				  uint32_t *Q)
 {
-	if (M == NULL || N == NULL || P == NULL || Q == NULL)
+	if (M == 0 || N == 0 || P == 0 || Q == 0)
 		return 1;
 	*M = RCC_PLLCFGR & 0x3F;
 	*N = (RCC_PLLCFGR >> 6) & 0x1FF;
