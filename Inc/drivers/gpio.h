@@ -1,15 +1,16 @@
 /*
- * GPIO.h
- *
- *  Created on: Dec 4, 2025
- *      Author: Nour
- * @Brief: Header for the GPIO peripherals.
+ * GPIO module header
+ * Date: Tue Dec 4 2025
+ * Updated on: Sun Oct 4 01:24:31 PM EEST 2026
+ * Author: Nour Nawar <nournawar5@gmail.com>
  */
 
 #ifndef GPIO_H_
 #define GPIO_H_
 
 #include <stdint.h>
+#include <drivers/rcc.h>
+
 /*
  * Each general-purpose I/O port has four 32-bit configuration registers (GPIOx_MODER,
  * GPIOx_OTYPER, GPIOx_OSPEEDR and GPIOx_PUPDR), two 32-bit data registers
@@ -28,121 +29,149 @@
  *
  */
 
-#define PORTA 0
-#define PORTB 1
-#define PORTC 2
+typedef struct {
+	uint32_t moder, ospeedr, pupdr;
+} gpio_reset_t;
 
-#define PIN0  0
-#define PIN1  1
-#define PIN2  2
-#define PIN3  3
-#define PIN4  4
-#define PIN5  5
-#define PIN6  6
-#define PIN7  7
-#define PIN8  8
-#define PIN9  9
-#define PIN10  10
-#define PIN11 11
-#define PIN12 12
-#define PIN13 13
-#define PIN14 14
-#define PIN15 15
+typedef enum {
+	GPIO_PORTA, GPIO_PORTB, GPIO_PORTC, GPIO_PORTD, GPIO_PORTE, GPIO_PORTH =
+	    7
+} gpio_port;
+
+typedef enum {
+	GPIO_PIN0, GPIO_PIN1, GPIO_PIN2, GPIO_PIN3, GPIO_PIN4, GPIO_PIN5,
+	GPIO_PIN6, GPIO_PIN7, GPIO_PIN8, GPIO_PIN9, GPIO_PIN10,
+	GPIO_PIN11, GPIO_PIN12, GPIO_PIN13, GPIO_PIN14, GPIO_PIN15
+} gpio_pin;
 
 /* Output mode */
-#define PP 0 /* Push pull */
-#define OD 1 /* Open drain */
+typedef enum {
+	GPIO_PP,		/* Push pull */
+	GPIO_OD			/* Open drain */
+} gpio_output_mode;
 
 /* Speed */
-#define LOW 0
-#define MED 1
-#define FAST 2
-#define HIGH 3
+typedef enum {
+	GPIO_low,
+	GPIO_med,
+	GPIO_fast,
+	GPIO_high
+} gpio_speed;
 
 /* Mode */
-#define IN     0
-#define OUT    1 
-#define AF     2
-#define ANALOG 3
+typedef enum {
+	GPIO_in,
+	GPIO_out,
+	GPIO_af,
+	GPIO_analog
+} gpio_mode;
 
 /* Internal resistor */
-#define PU 1 /* Push up */
-#define PD 2 /* Pull down */
+typedef enum {
+	GPIO_pull_up,		/* Push up */
+	GPIO_pull_down		/* Pull down */
+} gpio_resistor_mode;
+
+typedef struct {
+	// GPIO mode
+	gpio_mode mode;
+	// push pull or open drain
+	gpio_output_mode out_type;
+	// speed
+	gpio_speed out_speed;
+	//internal push/pull resistor used
+	gpio_resistor_mode resistor_mode;
+} gpio_config_t;
 
 #define GPIOA_BASE     0x40020000
 #define GPIOB_BASE     0x40020400
 #define GPIOC_BASE     0x40020800
 
-typedef struct {
-	volatile uint32_t MODER;   // 0x00
-	volatile uint32_t OTYPER;  // 0x04
-	volatile uint32_t OSPEEDR; // 0x08
-	volatile uint32_t OPUPDR;  // 0x0C
-	volatile uint32_t IDR;     // 0x10
-	volatile uint32_t ODR;     // 0x14
-	volatile uint32_t BSRR;    // 0x18
-	volatile uint32_t LCKR;    // 0x1C
-	volatile uint32_t AFRL;    // 0x20
-	volatile uint32_t AFRH;    // 0x24
-}GPIO_Regs;
+#define ADDR_GPIO_A ((volatile uint32_t*)(GPIOA_BASE))
+#define ADDR_GPIO_B ((volatile uint32_t*)(GPIOA_BASE))
+#define ADDR_GPIO_C ((volatile uint32_t*)(GPIOA_BASE))
 
 typedef struct {
-	/* port number */
-	volatile uint8_t port;
-	/* pin number */
-	volatile uint8_t pin;
-	/* GPIO mode
- 	 * use IN, OUT, AF, or ANALOG
- 	 */
-	volatile uint8_t mode;
-	/* push pull or open drain
- 	 * use PP or OD 
- 	 */
-	volatile uint8_t out_type;
-	/* speed 
-     * use LOW, MED, FAST, and HIGH
-     */
-	volatile uint8_t out_speed;
-	/* internal push/pull resistor used 
-     * use 0, PU, PD
-     */
-	volatile uint8_t pp_res;
-}GPIO_t;
+	volatile uint32_t MODER;	// 0x00
+	volatile uint32_t OTYPER;	// 0x04
+	volatile uint32_t OSPEEDR;	// 0x08
+	volatile uint32_t PUPDR;	// 0x0C
+	volatile uint32_t IDR;	// 0x10
+	volatile uint32_t ODR;	// 0x14
+	volatile uint32_t BSRR;	// 0x18
+	volatile uint32_t LCKR;	// 0x1C
+	volatile uint32_t AFRL;	// 0x20
+	volatile uint32_t AFRH;	// 0x24
+} GPIO_regs;
 
-#define GPIOA ((GPIO_Regs*) GPIOA_BASE)
-#define GPIOB ((GPIO_Regs*) GPIOB_BASE)
-#define GPIOC ((GPIO_Regs*) GPIOC_BASE)
-
-/* Initialize a GPIO pin with default settings.
- * (Push-pull, no internal resistor, and high speed.) 
- * Takes a port and pin numbers (use macros specified upove.)
- * Return status uint32_t.
+/*
+ * Initialize a GPIO pin
+ *
+ * gpio: A pointer to a gpio_config_t struct (See gpio.h for gpio_config_t fields)
+ *
+ * Return 0 upon success and 1 otherwise
  */
-GPIO_t  	GPIO_default(uint8_t pin, uint8_t port);
+uint8_t GPIO_init(gpio_port port, gpio_pin pin, gpio_config_t * gpio);
 
-/* Initialize a GPIO pin
- * Return status uint32_t
- k*/
-uint32_t	GPIO_init (GPIO_t* gpio);		
-
-/* Set a GPIO pin
- * Return status uint32_t
+/*
+ * Return the GPIO to its reset state
+ *
+ * NOTE: The `gpio_lookup_table` struct contains reset values for
+ * 	 the different registers in each port
+ *
+ * Return 0 upon success and 1 otherwise
  */
-uint32_t 	GPIO_set (GPIO_t* gpio);
+uint8_t GPIO_deinit(gpio_port port, gpio_pin pin);
 
-/* Clear a GPIO pin
- * Return status uint32_t
+/*
+ * Set pin to a HIGH state
+ *
+ * Return 0 upon success and 1 otherwise
  */
-uint32_t 	GPIO_clear (GPIO_t* gpio);
+uint8_t GPIO_set(gpio_port port, gpio_pin pin);
 
-/* Toggle a GPIO pin
- * Return status uint32_t
+/*
+ * Set pin to a LOW state
+ *
+ * Return 0 upon success and 1 otherwise
  */
-uint32_t 	GPIO_toggle (GPIO_t* gpio);
+uint8_t GPIO_clear(gpio_port port, gpio_pin pin);
 
-/* Read from a GPIO pin
- * Return status uint32_t
+/*
+ * Toggle pin state
+ *
+ * Return 0 upon success and 1 otherwise
  */
-uint32_t	GPIO_read (GPIO_t* gpio, uint32_t* saved);
+uint8_t GPIO_toggle(gpio_port port, gpio_pin pin);
 
-#endif /* GPIO_H_ */
+/*
+ * Read the state on a GPIO pin
+ *
+ * Return 0 upon success and 1 otherwise
+ */
+uint8_t GPIO_read(gpio_port port, gpio_pin pin, uint8_t * saved);
+
+/*
+ * Change the mode of a pin
+ *
+ * gpio_mode: GPIO mode (See gpio.h)
+ *
+ * Return 0 upon success and 1 otherwise
+ */
+uint8_t GPIO_set_mode(gpio_port port, gpio_pin pin, gpio_mode mode);
+
+/*
+ * Lock the GPIO registers for some pin
+ *
+ * NOTE: The lock doesn't apply to GPIOx_BSRR, GPIOx_ODR, and GPIOx_IDR
+ * NOTE: This action cannot be undone. The lock is removed only
+ * 	 at reset
+ */
+uint8_t GPIO_lock(gpio_port port, gpio_pin pin);
+
+/*
+ * Return pin lock status. 1 if locked, 0 if unlocked, 255 otherwise
+ */
+uint8_t GPIO_is_locked(gpio_port port, gpio_pin pin);
+
+#endif				/* GPIO_H_ */
