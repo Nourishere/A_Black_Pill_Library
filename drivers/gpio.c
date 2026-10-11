@@ -39,13 +39,21 @@ static const gpio_reset_t gpio_reset_table[] = {
  */
 uint8_t GPIO_init(gpio_port port, gpio_pin pin, gpio_config_t *gpio)
 {
+	if (gpio == 0 || gpio->mode > GPIO_af7 || gpio->out_speed > GPIO_high
+	    || gpio->resistor_mode > GPIO_pull_down || gpio->out_type > GPIO_OD)
+		return 1;
+
 	if (GPIO_chk_inv(port, pin))
 		return 1;
 
 	GPIO_regs *reg = (GPIO_regs *) (gpio_lookup_table[port].enr);
 
 	reg->MODER &= ~(0x3 << (pin << 1));
-	reg->MODER |= (gpio->mode) << (pin << 1);
+	if (gpio->mode >= GPIO_af0)
+		reg->MODER |= 0x2 << (pin << 1);
+	else
+		reg->MODER |= (gpio->mode) << (pin << 1);
+
 	reg->OTYPER &= ~(0x1 << pin);
 	reg->OTYPER |= (gpio->out_type) << pin;
 	reg->OSPEEDR &= ~(0x3 << (pin << 1));
@@ -53,6 +61,22 @@ uint8_t GPIO_init(gpio_port port, gpio_pin pin, gpio_config_t *gpio)
 	reg->PUPDR &= ~(0x3 << (pin << 1));
 	reg->PUPDR |= (gpio->resistor_mode) << (pin << 1);
 
+	// Handle Alternate Functions
+	if (gpio->mode >= GPIO_af0) {
+		if (pin > GPIO_PIN7) {
+			reg->AFRH &= ~(0xF << (pin << 2));
+			reg->AFRH |=
+			    ((uint32_t) (gpio->mode - GPIO_af0) & 0x0F) << (pin
+									    <<
+									    2);
+		} else {
+			reg->AFRL &= ~(0xF << (pin << 2));
+			reg->AFRL |=
+			    ((uint32_t) (gpio->mode - GPIO_af0) & 0x0F) << (pin
+									    <<
+									    2);
+		}
+	}
 	// Enable the clock
 	if (RCC_enable_peripheral((peripheral_t) port))
 		return 1;

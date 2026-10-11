@@ -62,8 +62,11 @@ typedef enum {
 typedef enum {
 	GPIO_in,
 	GPIO_out,
-	GPIO_af,
-	GPIO_analog
+	GPIO_analog = 3,
+	GPIO_af0, GPIO_af1, GPIO_af2, GPIO_af3,
+	GPIO_af4, GPIO_af5, GPIO_af6, GPIO_af7,
+	GPIO_af8, GPIO_af9, GPIO_af10, GPIO_af11,
+	GPIO_af12, GPIO_af13, GPIO_af14, GPIO_af15
 } gpio_mode;
 
 /* Internal resistor */
