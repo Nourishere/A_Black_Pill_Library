@@ -987,7 +987,7 @@ static uint8_t RCC_con_peripheral(peripheral_t peripheral, uint32_t state,
 		    0x08) : (peripheral_lookup_table[peripheral].enr);
 	uint32_t bit = (peripheral_lookup_table[peripheral].bit_position);
 
-	*reg = (*reg & ~(1 << bit)) | (state < bit);
+	*reg = (*reg & ~(1 << bit)) | (state << bit);
 
 	return 0;
 }

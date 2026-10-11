@@ -71,7 +71,8 @@ typedef enum {
 
 /* Internal resistor */
 typedef enum {
-	GPIO_pull_up,		/* Push up */
+	GPIO_none,		/* None used */
+	GPIO_pull_up,		/* Pull up */
 	GPIO_pull_down		/* Pull down */
 } gpio_resistor_mode;
 
@@ -91,8 +92,8 @@ typedef struct {
 #define GPIOC_BASE     0x40020800
 
 #define ADDR_GPIO_A ((volatile uint32_t*)(GPIOA_BASE))
-#define ADDR_GPIO_B ((volatile uint32_t*)(GPIOA_BASE))
-#define ADDR_GPIO_C ((volatile uint32_t*)(GPIOA_BASE))
+#define ADDR_GPIO_B ((volatile uint32_t*)(GPIOB_BASE))
+#define ADDR_GPIO_C ((volatile uint32_t*)(GPIOC_BASE))
 
 typedef struct {
 	volatile uint32_t MODER;	// 0x00
@@ -152,7 +153,7 @@ uint8_t GPIO_toggle(gpio_port port, gpio_pin pin);
  *
  * Return 0 upon success and 1 otherwise
  */
-uint8_t GPIO_read(gpio_port port, gpio_pin pin, uint8_t * saved);
+uint8_t GPIO_read(gpio_port port, gpio_pin pin);
 
 /*
  * Change the mode of a pin
