@@ -25,7 +25,7 @@ uint8_t IWDG_init(float reload_time)
 {
 	// Start with the lowest prescaler value and go down
 	uint32_t prescaler = 4;
-	uint32_t prescaler_register;
+	uint32_t prescaler_register = 0;
 	uint32_t reload;
 	if (reload_time > MAX_RELOAD_TIME || reload_time < MIN_RELOAD_TIME)
 		return 1;

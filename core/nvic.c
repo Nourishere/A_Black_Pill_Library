@@ -116,7 +116,7 @@ void NVIC_disable_all(void)
  */
 void NVIC_clear_all_pending(void)
 {
-	for (uint8_t i = 0; i < 240; i++)
+	for (uint8_t i = 0; i < 8; i++)
 		NVIC->ICPR[i] = 0xFFFFFFFFU;
 }
 
@@ -125,6 +125,6 @@ void NVIC_clear_all_pending(void)
  */
 void NVIC_reset_all_priorities(void)
 {
-	for (uint8_t i = 0; i < 8; i++)
+	for (uint8_t i = 0; i < 240; i++)
 		NVIC->IPR[i] = 0U;
 }
